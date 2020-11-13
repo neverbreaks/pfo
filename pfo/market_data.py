@@ -20,25 +20,37 @@ def _download_csv(tickers, path, start_date, end_date) -> pd.DataFrame:
     p = Path(path)
 
     if not p.exists():
-        raise Exception(f"File or folder {rpts_path} does not exist")
+        raise Exception(f'File or folder {path} does not exist')
 
     files = []
     if p.is_dir():
-        files = p.glob("*.csv")
+        files = p.glob('*.csv')
     else:
-        files = [path]
+        raise Exception('Param path should lead to folder')
 
-    ticker_files = []
-    if len(tickers) > 0:
-        ticker_files = [t+'.csv' for t in tickers]
+    available_tickers = [f.stem for f in files]
+
+    if len(tickers) == 0:
+        tickers = available_tickers
     else:
-        ticker_files = files
+        missing_tickers = list(set(tickers)-set(available_tickers))
+        if len(missing_tickers) > 0:
+            warning_message = "-" * 50
+            warning_message += "\n"
+            warning_message += "\nMissing stocks: {}".format(missing_tickers)
+            warning_message += "\n"
+            warning_message += "-" * 50
+            import warnings
+            warnings.warn(warning_message)
+
 
     data = pd.DataFrame()
-    for ticker in ticker_files:
+    for ticker in tickers:
         try:
+            ticker_path =  Path(path / f'{ticker}.csv')
+
             data[ticker] = \
-            pd.read_csv(path + ticker + '.csv', parse_dates=['Date'], skipinitialspace=True, index_col=0, sep=',') \
+            pd.read_csv(ticker_path, parse_dates=['Date'], skipinitialspace=True, index_col=0, sep=',') \
                 ['Adj. Close'][start_date:end_date]
         except:
             continue
