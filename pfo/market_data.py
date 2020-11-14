@@ -52,7 +52,6 @@ def _download_csv(tickers, path, start_date, end_date) -> pd.DataFrame:
             import warnings
             warnings.warn(warning_message)
 
-    data = pd.DataFrame()
     for ticker in tickers:
         try:
             ticker_path = Path(path / f'{ticker}.csv')
@@ -103,20 +102,21 @@ def _download_moex(tickers, start_date, end_date, boards) -> pd.DataFrame:
 
         with requests.Session() as session:
             iss = apimoex.ISSClient(session, request_url, arguments)
-            data = iss.get()
-            board_df = pd.DataFrame(data['securities'])
+            iis_data = iss.get()
+            board_df = pd.DataFrame(iis_data['securities'])
             board_df.set_index('SECID', inplace=True)
 
-            prntstocks = []
+            stocks_list = []
             for stock in board_df.index:
-                prntstocks.append(stock.replace('-RM', ''))
+                if stock in tickers:
+                    print(f' ---{stock}:')
+                    stock_data = apimoex.get_board_history(session=session, security=stock, start=start_date, \
+                                                           end=end_date, columns=None, market=shares, board=brd)
 
-            print(prntstocks)
-            for stock in board_df.index:
-                print(f' ---{stock}:')
-                stock_data = apimoex.get_board_history(session, stock, market=shares, board=board)
-                stock_df = pd.DataFrame(stock_data)
-                stock_df.set_index('TRADEDATE', inplace=True)
+                    stocks_list+=stock_data
+                    data[stock] = pd.DataFrame(stock_data).set_index(keys=['TRADEDATE'], drop=False)
+
+            #data = pd.DataFrame(stocks_list).set_index(keys=['TRADEDATE'], drop=False)
 
     return data
 
