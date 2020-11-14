@@ -5,3 +5,4 @@ twine==3.2.0
 pytest==6.1.2
 black==20.8b1
 numpy==1.19.3
+apimoex==1.2.0

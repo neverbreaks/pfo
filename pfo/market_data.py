@@ -5,8 +5,11 @@
 
 import pandas as pd
 import yfinance
+import apimoex
+import requests
 from pathlib import Path, WindowsPath
 from enum import Enum
+
 
 
 class Source(Enum):
@@ -83,6 +86,41 @@ def _download_yfinance(tickers, start_date, end_date) -> pd.DataFrame:
     return data
 
 
+def _download_moex(tickers, start_date, end_date, boards) -> pd.DataFrame:
+    data = pd.DataFrame()
+    arguments = {'securities.columns': ('SECID,'
+                                        'REGNUMBER,'
+                                        'LOTSIZE,'
+                                        'SHORTNAME')}
+    for board in boards:
+        brd = board.get('board')
+        shares = board.get('shares')
+        request_url = ('https://iss.moex.com/iss/engines/stock/'
+                       f'markets/{shares}/boards/{brd}/securities.json')
+
+        print("-" * 80)
+        print(f'Loading {board}:')
+
+        with requests.Session() as session:
+            iss = apimoex.ISSClient(session, request_url, arguments)
+            data = iss.get()
+            board_df = pd.DataFrame(data['securities'])
+            board_df.set_index('SECID', inplace=True)
+
+            prntstocks = []
+            for stock in board_df.index:
+                prntstocks.append(stock.replace('-RM', ''))
+
+            print(prntstocks)
+            for stock in board_df.index:
+                print(f' ---{stock}:')
+                stock_data = apimoex.get_board_history(session, stock, market=shares, board=board)
+                stock_df = pd.DataFrame(stock_data)
+                stock_df.set_index('TRADEDATE', inplace=True)
+
+    return data
+
+
 
 def download(source: Source, **kwargs) -> pd.DataFrame:
     """This function returns pandas.DataFrame with market data for analysis.
@@ -95,6 +133,11 @@ def download(source: Source, **kwargs) -> pd.DataFrame:
          requested through `yfinance` (default: ``None``).
      :path (optional): folder where .csv files with prices are stored. file should be
       named as ticker.csv, i.e. AAPL.csv
+     :boards : union, MOEX boards and type of share like boards = [
+                                                             {'board': 'TQBR', 'shares': 'shares'},
+                                                             {'board': 'TQTF', 'shares': 'shares'},
+                                                             {'board': 'FQBR', 'shares': 'foreignshares'},
+                                                         ]
     :Output:
      : rates: pandas.DataFrame, index = Date,
     """
@@ -102,6 +145,7 @@ def download(source: Source, **kwargs) -> pd.DataFrame:
     start_date = kwargs.get('start_date', None)
     end_date = kwargs.get('end_date', None)
     path = kwargs.get('path', '')
+    boards = kwargs.get('boards', [{'board': 'TQBR', 'shares': 'shares'}])
 
     rates = pd.DataFrame()
     if source == Source.CSV:
@@ -109,6 +153,9 @@ def download(source: Source, **kwargs) -> pd.DataFrame:
 
     if source == Source.YFINANCE:
         rates = _download_yfinance(tickers=tickers, start_date=start_date, end_date=end_date)
+
+    if source == Source.MOEX:
+        rates = _download_moex(tickers=tickers, start_date=start_date, end_date=end_date, boards = boards)
 
 
     return rates
