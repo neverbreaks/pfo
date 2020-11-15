@@ -106,18 +106,19 @@ def _download_moex(tickers, start_date, end_date, boards) -> pd.DataFrame:
             board_df = pd.DataFrame(iis_data['securities'])
             board_df.set_index('SECID', inplace=True)
 
-            stocks_list = []
+            stocks_list = {}
             for stock in board_df.index:
                 if stock in tickers:
                     print(f' ---{stock}:')
                     stock_data = apimoex.get_board_history(session=session, security=stock, start=start_date, \
                                                            end=end_date, columns=None, market=shares, board=brd)
+                    stock_df = pd.DataFrame(stock_data)
+                    stock_df.set_index('TRADEDATE')
+                    data[stock] = stock_df
 
-                    stocks_list+=stock_data
-                    data[stock] = pd.DataFrame(stock_data).set_index(keys=['TRADEDATE'], drop=False)
-
-            #data = pd.DataFrame(stocks_list).set_index(keys=['TRADEDATE'], drop=False)
-
+            #data = pd.DataFrame.from_dict(stocks_list, orient='index')
+            #data = data.transpose()
+    print("")
     return data
 
 
