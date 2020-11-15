@@ -122,8 +122,6 @@ def _download_moex(tickers, start_date, end_date, boards) -> pd.DataFrame:
 
             data = pd.concat(stocks_prices, join='inner', axis=1)
 
-
-    print("")
     return data
 
 
