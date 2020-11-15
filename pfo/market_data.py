@@ -117,7 +117,7 @@ def _download_moex(tickers, start_date, end_date, boards) -> pd.DataFrame:
 
                     stock_df = pd.DataFrame(stock_data)
                     stock_df.set_index('TRADEDATE', inplace=True)
-                    stock_df = pd.concat([stock_df], axis=1, keys=[stock])
+                    stock_df = pd.concat([stock_df], axis=1, keys=[stock]).swaplevel(0, 1, 1)
                     stocks_prices.append(stock_df)
 
             data = pd.concat(stocks_prices, join='inner', axis=1)
