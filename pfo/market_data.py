@@ -9,7 +9,7 @@ import apimoex
 import requests
 from pathlib import Path, WindowsPath
 from enum import Enum
-
+import datetime
 
 
 class Source(Enum):
@@ -39,6 +39,7 @@ def _download_csv(tickers, path, start_date, end_date) -> pd.DataFrame:
 
     available_tickers = [f.stem for f in files]
 
+    missing_tickers = []
     if len(tickers) == 0:
         tickers = available_tickers
     else:
@@ -52,21 +53,31 @@ def _download_csv(tickers, path, start_date, end_date) -> pd.DataFrame:
             import warnings
             warnings.warn(warning_message)
 
+    stocks_prices = []
     for ticker in tickers:
-        try:
-            ticker_path = Path(path / f'{ticker}.csv')
+        if ticker not in missing_tickers:
+            stock_df = pd.DataFrame()
+            try:
+                ticker_path = Path(path / f'{ticker}.csv')
+                if start_date is None or end_date is None:
+                    stock_df = \
+                        pd.read_csv(ticker_path, index_col = 0,  parse_dates=['Date'], skipinitialspace=True,  sep=',') \
+                            ['Adj. Close']
+                else:
+                    stock_df = \
+                        pd.read_csv(ticker_path, index_col = 0,  parse_dates=['Date'], skipinitialspace=True, sep=',') \
+                            ['Adj. Close'][start_date:end_date]
 
-            if start_date is None or end_date is None:
-                data[ticker] = \
-                    pd.read_csv(ticker_path, parse_dates=['Date'], skipinitialspace=True, index_col=0, sep=',') \
-                        ['Adj. Close']
-            else:
-                data[ticker] = \
-                    pd.read_csv(ticker_path, parse_dates=['Date'], skipinitialspace=True, index_col=0, sep=',') \
-                        ['Adj. Close'][start_date:end_date]
+            except:
+                continue
 
-        except:
-            continue
+            stock_df = pd.DataFrame(stock_df)
+
+            stock_df = pd.concat([stock_df], axis=1, keys=[ticker]).swaplevel(0, 1, 1)
+            stocks_prices.append(stock_df)
+
+    if len(stocks_prices) > 0:
+        data = pd.concat(stocks_prices, join='inner', axis=1)
 
     return data
 
@@ -77,10 +88,21 @@ def _download_yfinance(tickers, start_date, end_date) -> pd.DataFrame:
     if len(tickers) == 0:
         raise Exception(f'No tickers provided')
 
-    if start_date is None or end_date is None:
-        data = yfinance.download(tickers, period="max")
-    else:
-        data = yfinance.download(tickers, start=start_date, end=end_date)
+    try:
+        if start_date is None or end_date is None:
+            data = yfinance.download(tickers, period="max")
+        else:
+            data = yfinance.download(tickers, start=start_date, end=end_date)
+
+    except Exception:
+        raise Exception(
+            "Error during download of stock data with `yfinance`"
+        )
+
+    if not isinstance(data.columns, pd.MultiIndex) > 0:
+        # adding multiindex
+        stock_tuples = [(col, tickers[0]) for col in list(data.columns)]
+        data.columns = pd.MultiIndex.from_tuples(stock_tuples)
 
     return data
 
@@ -106,8 +128,8 @@ def _download_moex(tickers, start_date, end_date, boards) -> pd.DataFrame:
             board_df = pd.DataFrame(iis_data['securities'])
             board_df.set_index('SECID', inplace=True)
 
-            columns = ['TRADEDATE', 'SECID', 'WAPRICE','CLOSE']
-            stocks_prices=[]
+            columns = ['TRADEDATE', 'WAPRICE', 'CLOSE']
+            stocks_prices = []
             for stock in board_df.index:
                 if stock in tickers:
                     print(f' ---{stock}:')
@@ -116,14 +138,15 @@ def _download_moex(tickers, start_date, end_date, boards) -> pd.DataFrame:
                                                            end=end_date, columns=columns, market=shares, board=brd)
 
                     stock_df = pd.DataFrame(stock_data)
+                    stock_df['TRADEDATE'] = pd.to_datetime(stock_df['TRADEDATE'])
                     stock_df.set_index('TRADEDATE', inplace=True)
                     stock_df = pd.concat([stock_df], axis=1, keys=[stock]).swaplevel(0, 1, 1)
                     stocks_prices.append(stock_df)
 
-            data = pd.concat(stocks_prices, join='inner', axis=1)
+            if len(stocks_prices) > 0:
+                data = pd.concat(stocks_prices, join='inner', axis=1)
 
     return data
-
 
 
 def download(source: Source, **kwargs) -> pd.DataFrame:
@@ -159,12 +182,10 @@ def download(source: Source, **kwargs) -> pd.DataFrame:
         rates = _download_yfinance(tickers=tickers, start_date=start_date, end_date=end_date)
 
     if source == Source.MOEX:
-        rates = _download_moex(tickers=tickers, start_date=start_date, end_date=end_date, boards = boards)
-
+        rates = _download_moex(tickers=tickers, start_date=start_date, end_date=end_date, boards=boards)
 
     return rates
 
 
 def cache(source: Source, path, **kwargs):
-
     print("")
