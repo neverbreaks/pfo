@@ -7,16 +7,18 @@ from pfo.market_data import download, Source
 import pfo.portfolio as pf
 
 path = (Path.cwd() / "data").resolve()
-start_date = datetime.datetime(2017, 1, 1)
-end_date = "2019-12-31"
+start_date = datetime.datetime(2014, 12, 31)
+end_date = '2020-01-01'
+
 
 ###############################################################################
 #                                   TUCKERS                                   #
 ###############################################################################
 
 tickers_pass_csv = [
-    ['AAPL', 'AMD', 'V'],
+    ['TSLA', 'FB'],
     ['AAPL', 'AMD'],
+    ['AAPL', 'NKE', 'GOOGL', 'AMZN']
 ]
 
 tickers_pass_yfinance = [
@@ -35,7 +37,7 @@ tickers_pass_moex = [
 ###############################################################################
 
 d_pass_csv = [
-    {'source': Source.CSV, 'tickers': tickers_pass_csv[0], 'path': path, 'start_date': start_date, 'end_date': end_date},
+    {'source': Source.CSV, 'tickers': tickers_pass_csv[2], 'path': path, 'start_date': start_date, 'end_date': end_date},
     {'source': Source.CSV, 'tickers': tickers_pass_csv[1], 'path': path},
 ]
 
@@ -57,8 +59,10 @@ d_pass_moex = [
 def test_portfolio_csv_pass_0():
     d = d_pass_csv[0]
     data = download(**d)
+    print(data.head())
     portfolio = pf.Portfolio()
     portfolio.build(data)
+   # print(portfolio.data.head())
 
 ###############################################################################
 #                                      MOEX                                   #

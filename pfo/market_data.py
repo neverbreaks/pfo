@@ -62,11 +62,11 @@ def _download_csv(tickers, path, start_date, end_date) -> pd.DataFrame:
                 if start_date is None or end_date is None:
                     stock_df = \
                         pd.read_csv(ticker_path, index_col = 0,  parse_dates=['Date'], skipinitialspace=True,  sep=',') \
-                            ['Adj. Close']
+                            [:]
                 else:
                     stock_df = \
                         pd.read_csv(ticker_path, index_col = 0,  parse_dates=['Date'], skipinitialspace=True, sep=',') \
-                            ['Adj. Close'][start_date:end_date]
+                            [:][start_date:end_date]
 
             except:
                 continue

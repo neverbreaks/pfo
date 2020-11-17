@@ -1,18 +1,8 @@
 import pandas as pd
-
-price_col_names = ['WAPRICE', 'Adj. Close', 'CLOSE', 'close', 'Close']
-
-def _get_priority_price_column(columns):
-    unique_names = list(set(columns))
-
-    for name in  unique_names:
-        if name in price_col_names:
-            return name
-
-    return None
-
-
-
+from pfo.config import price_column
+from pfo.valuations import daily_log_returns, volatility
+from pfo.valuations import cov_matrix, corr_matrix, yearly_returns
+from pfo.quants import mc_random_portfolios
 
 class Portfolio(object):
     """Object that contains information about a investment portfolio.
@@ -29,12 +19,11 @@ class Portfolio(object):
         # Final calculations are annualised so 252 work days are selected as basis
         self._freq = 252
 
-    def _calc(self):
-        pass
+
 
     def _clean_data(self, dt: pd.DataFrame)->pd.DataFrame:
        columns = []
-       priority_column = _get_priority_price_column(dt.columns.get_level_values(0))
+       priority_column = price_column(dt.columns.get_level_values(0))
        for index, item in enumerate(dt.columns.get_level_values(0), start=0):  # Python indexes start at zero
            if item == priority_column:
                columns.append(index)
@@ -44,6 +33,22 @@ class Portfolio(object):
     @property
     def data(self):
         return self._data
+
+    def _ef(self):
+       pf_daily_log_returns = daily_log_returns(self._data)
+       #print(pf_daily_log_returns.head())
+
+
+
+       #print(cov_matrix(self._data))
+       #print(corr_matrix(self._data))
+       #print(yearly_returns(self._data))
+       #print(volatility(self._data))
+       mc_random_portfolios(self._data)
+
+    def _calc(self):
+        self._ef()
+
 
 
     def build(self, data: pd.DataFrame, risk_free_rate=0.0425, freq=252):
@@ -62,8 +67,8 @@ class Portfolio(object):
         if not isinstance(data, pd.DataFrame):
             raise ValueError('Data should be a pandas.DataFrame')
         elif not isinstance(data.columns, pd.MultiIndex) > 0:
-            raise ValueError('Multiindex pandas.DataFrame is expected')
-        elif _get_priority_price_column(data.columns.get_level_values(0)) == None:
+            raise ValueError('Multiindex pandas.DataFrame is expected like Close/AAPL')
+        elif price_column(data.columns.get_level_values(0)) == None:
             raise ValueError('Can not find a column with prices')
         else:
             self._data= self._clean_data(data)
