@@ -27,7 +27,7 @@ tickers_pass_yfinance = [
 ]
 
 tickers_pass_moex = [
-    ['SBER', 'GAZP', 'MTSS'],
+    ['SBER', 'GAZP', 'MTSS', 'AFLT', 'MOEX'],
     ['SBER', 'GAZP', 'MTSS', 'UNKN'],
     ['SBER'],
 ]
@@ -59,10 +59,9 @@ d_pass_moex = [
 def test_portfolio_csv_pass_0():
     d = d_pass_csv[0]
     data = download(**d)
-    print(data.head())
     portfolio = pf.Portfolio()
     portfolio.build(data)
-   # print(portfolio.data.head())
+    # print(portfolio.data.head())
 
 ###############################################################################
 #                                      MOEX                                   #
@@ -70,7 +69,6 @@ def test_portfolio_csv_pass_0():
 def test_portfolio_moex_pass_0():
     d = d_pass_moex[0]
     data = download(**d)
-    print(data.head())
     portfolio = pf.Portfolio()
     portfolio.build(data)
-    print(portfolio.data.head())
+    # print(portfolio.data.head())

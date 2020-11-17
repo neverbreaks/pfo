@@ -42,10 +42,6 @@ def volatility(data, freq=252) -> pd.Series:
         .dropna(how="all").replace([np.inf, -np.inf], np.nan)
 
 
-def variance(cov_matrix, weights):
-    return cov_matrix.mul(weights, axis=0).mul(weights, axis=1).sum().sum()
-
-
 def cov_matrix(data) -> pd.DataFrame:
     return daily_log_returns(data).cov() \
         .dropna(how="all").replace([np.inf, -np.inf], np.nan)

@@ -1,4 +1,5 @@
 import pandas as pd
+import matplotlib.pyplot as plt
 from pfo.config import price_column
 from pfo.valuations import daily_log_returns, volatility
 from pfo.valuations import cov_matrix, corr_matrix, yearly_returns
@@ -12,6 +13,9 @@ class Portfolio(object):
     """
 
     def __init__(self):
+        self._portfolios = pd.DataFrame()
+        self._min_vol_port = pd.DataFrame()
+        self._optimal_risky_port = pd.DataFrame()
         # stocks prices
         self._data = pd.DataFrame()
         # Risk free rate. I default with CBR ate
@@ -34,21 +38,22 @@ class Portfolio(object):
     def data(self):
         return self._data
 
+    def plot_portfolios(self):
+        self._portfolios.plot.scatter(x='Volatility', y='Returns', marker='o', s=10, alpha=0.3, grid=True, figsize=[16, 10])
+        plt.scatter(self._min_vol_port[1], self._min_vol_port[0], color='r', marker='*', s=500)
+        plt.scatter(self._optimal_risky_port[1], self._optimal_risky_port[0], color='g', marker='*', s=500)
+        plt.show()
+
+
     def _ef(self):
-       pf_daily_log_returns = daily_log_returns(self._data)
-       #print(pf_daily_log_returns.head())
-
-
-
-       #print(cov_matrix(self._data))
-       #print(corr_matrix(self._data))
-       #print(yearly_returns(self._data))
-       #print(volatility(self._data))
-       mc_random_portfolios(self._data)
+       pass
 
     def _calc(self):
+        self._portfolios = mc_random_portfolios(self._data)
+        self._min_vol_port = self._portfolios.iloc[self._portfolios['Volatility'].idxmin()]
+        self._optimal_risky_port = self._portfolios.iloc[self._portfolios['Sharp Ratio'].idxmax()]
+        self.plot_portfolios()
         self._ef()
-
 
 
     def build(self, data: pd.DataFrame, risk_free_rate=0.0425, freq=252):
