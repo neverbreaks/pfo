@@ -25,7 +25,7 @@ def daily_log_returns(data) -> pd.DataFrame:
     return np.log(1.0 + daily_returns(data)).dropna(how="all")
 
 
-def yearly_returns(data: pd.DataFrame, freq=252, type='pct') -> pd.DataFrame:
+def yearly_returns(data: pd.DataFrame, freq=252, type='log') -> pd.DataFrame:
 
     if type == 'pct':
         return daily_returns(data).mean() * freq
