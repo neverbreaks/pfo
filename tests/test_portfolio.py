@@ -4,7 +4,8 @@ import pandas as pd
 import pytest
 
 from pfo.market_data import download, Source
-import pfo.portfolio as pf
+from  pfo.portfolio import Portfolio
+from pfo.data_utils import clean_data
 
 path = (Path.cwd() / "data").resolve()
 start_date = datetime.datetime(2014, 12, 31)
@@ -59,9 +60,10 @@ d_pass_moex = [
 def test_portfolio_csv_pass_0():
     d = d_pass_csv[0]
     data = download(**d)
-    portfolio = pf.Portfolio()
-    portfolio.build(data)
-    # print(portfolio.data.head())
+    data = clean_data(data)
+    portfolio = Portfolio(data = data, num_portfolios=1000, yr_calc_alg = 'log')
+    portfolio.plot_portfolios()
+    portfolio.print_results()
 
 ###############################################################################
 #                                      MOEX                                   #
@@ -69,6 +71,5 @@ def test_portfolio_csv_pass_0():
 def test_portfolio_moex_pass_0():
     d = d_pass_moex[0]
     data = download(**d)
-    portfolio = pf.Portfolio()
-    portfolio.build(data)
-    # print(portfolio.data.head())
+    data = clean_data(data)
+    portfolio = Portfolio(data = data)

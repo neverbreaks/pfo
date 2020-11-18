@@ -18,6 +18,11 @@ def mc_random_portfolios(data, risk_free_rate=0.0425, num_portfolios = 100, yr_c
     stocks_yearly_returns = yearly_returns(data, type=yr_calc_alg)
     stocks_daily_returns = daily_log_returns(data)
 
+    stocks_downsides_daily_returns = stocks_daily_returns.copy(deep=True)
+    stocks_downsides_daily_returns[stocks_downsides_daily_returns > 0] = 0
+    stocks_downsides_daily_returns = stocks_downsides_daily_returns[stocks_downsides_daily_returns <= 0]**2
+
+
     for portfolio in range(num_portfolios):
         weights = np.random.random(num_assets)
         weights = weights/np.sum(weights)
@@ -33,10 +38,11 @@ def mc_random_portfolios(data, risk_free_rate=0.0425, num_portfolios = 100, yr_c
 
         pf_sharp_ratio.append((returns-risk_free_rate)/volatility)
 
-        #std_neg = stocks_daily_returns[stocks_daily_returns < 0].std() * np.sqrt(N)
-        #pf_sortino_ratio.append(returns-risk_free_rate / std_neg)
+        var2 = stocks_downsides_daily_returns.mul(weights).sum()
+        down_stdev = np.sqrt(var2.mean())/np.sqrt(freq)
+        pf_sortino_ratio.append(returns-risk_free_rate / down_stdev)
 
-    df_rv = {'Returns': pf_ret, 'Volatility': pf_vol, 'Sharp Ratio': pf_sharp_ratio} #, 'Sortino Ratio': pf_sortino_ratio}
+    df_rv = {'Returns': pf_ret, 'Volatility': pf_vol, 'Sharp Ratio': pf_sharp_ratio, 'Sortino Ratio': pf_sortino_ratio}
 
     for counter, symbol in enumerate(data.columns, start=0):
         df_rv[symbol] = [w[counter] for w in pf_weights]
