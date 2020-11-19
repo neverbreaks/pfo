@@ -21,23 +21,15 @@ def mc_random_portfolios(data, risk_free_rate=0.01, num_portfolios = 10000, yr_c
 
     pf_ret = [] # Define an empty array for portfolio returns
     pf_vol = [] # Define an empty array for portfolio volatility
-    pf_down_vol = []
+    pf_down_vol = [] # Define an empty array for portfolio downside volatility
     pf_weights = [] # Define an empty array for asset weights
     pf_sharp_ratio = []  # Define an empty array for Sharp ratio
     pf_sortino_ratio = []  # Define an empty array for Sortino ratio
 
-    pf_cvm = cov_matrix(data)
+    cvm = cov_matrix(data)
     stocks_yearly_returns = yearly_returns(data, freq=freq, type='log')
-    stocks_daily_returns = daily_log_returns(data)
-    dwnsd_log_return = downside_log_return(data)
-    sqr_downside_log_return = dwnsd_log_return**2
+    stocks_yearly_downside_vol = downside_log_return(data).std() * np.sqrt(freq)
 
-    pf_neg_std = downside_log_return(data).std()
-    pf_std = stocks_daily_returns.std()
-    # stocks_downsides_daily_returns = stocks_daily_returns.copy(deep=True)
-    # num_of_obseravtions = len(stocks_downsides_daily_returns.index)
-    # stocks_downsides_daily_returns[stocks_downsides_daily_returns > 0] = 0
-    # stocks_downsides_daily_returns = stocks_downsides_daily_returns[stocks_downsides_daily_returns <= 0]**2
     num_assets=len(data.columns)
 
     for portfolio in range(num_portfolios):
@@ -48,17 +40,15 @@ def mc_random_portfolios(data, risk_free_rate=0.01, num_portfolios = 10000, yr_c
         returns = portfolio_yearly_returns(weights, stocks_yearly_returns)
         pf_ret.append(returns)
 
-        volatility = portfolio_yearly_volatility(weights, pf_cvm, freq = freq) # Annual standard deviation = volatility
+        volatility = portfolio_yearly_volatility(weights, cvm, freq = freq) # Annual standard deviation = volatility
         pf_vol.append(volatility)
 
         pf_sharp_ratio.append((returns-risk_free_rate)/volatility)
 
-        step_1 = dwnsd_log_return.std()
-        step_2 = step_1 * np.sqrt(freq)
-        step_3 = (step_2 * weights).sum()
-        pf_down_vol.append(step_3)
+        pf_stocks_yearly_downside_vol = (stocks_yearly_downside_vol * weights).sum()
+        pf_down_vol.append(pf_stocks_yearly_downside_vol)
 
-        pf_sortino_ratio.append(returns-risk_free_rate / step_3)
+        pf_sortino_ratio.append((returns-risk_free_rate) / pf_stocks_yearly_downside_vol)
 
     df_rv = {'Returns': pf_ret, 'Volatility': pf_vol, 'Down. Volatility': pf_down_vol,'Sharp Ratio': pf_sharp_ratio, 'Sortino Ratio': pf_sortino_ratio}
 

@@ -8,8 +8,8 @@ from  pfo.portfolio import Portfolio
 from pfo.data_utils import clean_data
 
 path = (Path.cwd() / "data").resolve()
-start_date = datetime.datetime(2014, 12, 31)
-end_date = '2020-01-01'
+start_date = datetime.datetime(2018, 11, 19)
+end_date = '2020-11-18'
 
 
 ###############################################################################
@@ -25,6 +25,7 @@ tickers_pass_csv = [
 tickers_pass_yfinance = [
     ['AAPL'],
     ['AAPL', 'AMD'],
+    ['V', 'ADBE', 'AMZN', 'MSFT', 'ATVI', 'EA', 'FB', 'NEM', 'GOOG', 'AVGO', 'QCOM', 'BABA', 'MA', 'AAPL']
 ]
 
 tickers_pass_moex = [
@@ -45,6 +46,7 @@ d_pass_csv = [
 d_pass_yfinance = [
     {'source': Source.YFINANCE, 'tickers': tickers_pass_yfinance[0]},
     {'source': Source.YFINANCE, 'tickers': tickers_pass_yfinance[1], 'start_date': start_date, 'end_date': end_date},
+    {'source': Source.YFINANCE, 'tickers': tickers_pass_yfinance[2], 'start_date': start_date, 'end_date': end_date},
 ]
 
 d_pass_moex = [
@@ -73,5 +75,22 @@ def test_portfolio_moex_pass_0():
     data = download(**d)
     data = clean_data(data)
     portfolio = Portfolio(data = data)
+    portfolio.plot_portfolios()
+    portfolio.print_results()
+
+
+def test_portfolio_yfinance_pass_0():
+    d = d_pass_yfinance[2]
+    data = download(**d)
+    data = clean_data(data)
+    portfolio = Portfolio(data=data, risk_free_rate=0.001, freq=252, num_portfolios=10000)
+    portfolio.plot_portfolios()
+    portfolio.print_results()
+
+def test_portfolio_yfinance_pass_1():
+    d = d_pass_yfinance[0]
+    data = download(**d)
+    data = clean_data(data)
+    portfolio = Portfolio(data=data, risk_free_rate=0.001, freq=252, num_portfolios=10000)
     portfolio.plot_portfolios()
     portfolio.print_results()

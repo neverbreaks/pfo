@@ -11,7 +11,7 @@ class Portfolio(object):
     with ''build'' function.
     """
 
-    def __init__(self, data: pd.DataFrame, risk_free_rate=0.0425, freq = 252, num_portfolios = 100, yr_calc_alg = 'log'):
+    def __init__(self, data: pd.DataFrame, risk_free_rate=0.0425, freq=252, num_portfolios=10000, yr_calc_alg='log'):
         if not isinstance(freq, int):
             raise ValueError('Frequency must be an integer')
         elif freq <= 0:
@@ -26,6 +26,7 @@ class Portfolio(object):
 
         self._portfolios = None
         self._min_vol_port = None
+        self._min_downside_vol_port = None
         self._max_sharpe_port = None
         self._max_sortino_port = None
         self._num_portfolios = num_portfolios
@@ -47,26 +48,32 @@ class Portfolio(object):
         pass
 
     def _calc(self):
-        self._portfolios = mc_random_portfolios(data = self._data, risk_free_rate = self._risk_free_rate, \
-                                                num_portfolios=self._num_portfolios, freq = self._freq, \
-                                                yr_calc_alg = self._yr_calc_alg)
+        self._portfolios = mc_random_portfolios(data=self._data, risk_free_rate=self._risk_free_rate, \
+                                                num_portfolios=self._num_portfolios, freq=self._freq, \
+                                                yr_calc_alg=self._yr_calc_alg)
 
         self._min_vol_port = self._portfolios.iloc[self._portfolios['Volatility'].idxmin()]
+        self._min_downside_vol_port = self._portfolios.iloc[self._portfolios['Down. Volatility'].idxmin()]
         self._max_sharpe_port = self._portfolios.iloc[self._portfolios['Sharp Ratio'].idxmax()]
         self._max_sortino_port = self._portfolios.iloc[self._portfolios['Sortino Ratio'].idxmax()]
-        self._min_vol_port.rename_axis("Min Volatiity")
-        self._max_sharpe_port.rename_axis("Max Sharpe Ratio")
-        self._max_sortino_port.rename_axis("Max Sortino Ratio")
+        self._min_vol_port.rename_axis('Min Volatiity')
+        self._min_downside_vol_port.rename_axis('Down. Volatility')
+        self._max_sharpe_port.rename_axis('Max Sharpe Ratio')
+        self._max_sortino_port.rename_axis('Max Sortino Ratio')
+
         self._ef()
 
     ###############################################################################
     #                                     PLOT                                   #
     ###############################################################################
     def plot_portfolios(self):
-        self._portfolios.plot.scatter(x='Volatility', y='Returns', marker='o', s=10, alpha=0.3, grid=True, figsize=[16, 10])
+        self._portfolios.plot.scatter(x='Volatility', y='Returns', marker='o', s=10, alpha=0.3, grid=True,
+                                      figsize=[16, 10])
         plt.scatter(self._min_vol_port[1], self._min_vol_port[0], color='r', marker='*', s=500)
+        plt.scatter(self._min_downside_vol_port[1], self._min_downside_vol_port[0], color='c', marker='*', s=500)
         plt.scatter(self._max_sharpe_port[1], self._max_sharpe_port[0], color='g', marker='*', s=500)
-        plt.scatter(self._max_sortino_port[1], self._max_sortino_port[0], color='g', marker='*', s=500)
+        plt.scatter(self._max_sortino_port[1], self._max_sortino_port[0], color='y', marker='*', s=500)
+
         plt.show()
 
     def plot_ef(self):
@@ -77,7 +84,10 @@ class Portfolio(object):
     ###############################################################################
 
     def print_results(self):
-        df_out = pd.concat([self._min_vol_port, self._max_sharpe_port, self._max_sortino_port], keys=["Min Volatiity", "Max Sharpe Ratio", "Max Sortino Ratio"], join='inner', axis=1)
-        print( "=" * 80)
-        print(df_out)
-        print( "=" * 80)
+        df_out = pd.concat([self._min_vol_port, self._min_downside_vol_port, self._max_sharpe_port, self._max_sortino_port],
+                           keys=['Min Volatiity', 'Down. Volatility', 'Max Sharpe Ratio', 'Max Sortino Ratio'], join='inner', axis=1)
+        print('\n')
+        print('=' * 80)
+        with pd.option_context('display.max_rows', None, 'display.max_columns', None):
+            print(df_out)
+        print('=' * 80)
