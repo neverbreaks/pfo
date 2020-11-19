@@ -27,6 +27,7 @@ class Portfolio(object):
         self._portfolios = None
         self._min_vol_port = None
         self._max_sharpe_port = None
+        self._max_sortino_port = None
         self._num_portfolios = num_portfolios
         self._yr_calc_alg = yr_calc_alg
         # stocks prices
@@ -52,8 +53,10 @@ class Portfolio(object):
 
         self._min_vol_port = self._portfolios.iloc[self._portfolios['Volatility'].idxmin()]
         self._max_sharpe_port = self._portfolios.iloc[self._portfolios['Sharp Ratio'].idxmax()]
+        self._max_sortino_port = self._portfolios.iloc[self._portfolios['Sortino Ratio'].idxmax()]
         self._min_vol_port.rename_axis("Min Volatiity")
         self._max_sharpe_port.rename_axis("Max Sharpe Ratio")
+        self._max_sortino_port.rename_axis("Max Sortino Ratio")
         self._ef()
 
     ###############################################################################
@@ -63,6 +66,7 @@ class Portfolio(object):
         self._portfolios.plot.scatter(x='Volatility', y='Returns', marker='o', s=10, alpha=0.3, grid=True, figsize=[16, 10])
         plt.scatter(self._min_vol_port[1], self._min_vol_port[0], color='r', marker='*', s=500)
         plt.scatter(self._max_sharpe_port[1], self._max_sharpe_port[0], color='g', marker='*', s=500)
+        plt.scatter(self._max_sortino_port[1], self._max_sortino_port[0], color='g', marker='*', s=500)
         plt.show()
 
     def plot_ef(self):
@@ -73,7 +77,7 @@ class Portfolio(object):
     ###############################################################################
 
     def print_results(self):
-        df_out = pd.concat([self._min_vol_port, self._max_sharpe_port], keys=["Min Volatiity", "Max Sharpe Ratio"], join='inner', axis=1)
+        df_out = pd.concat([self._min_vol_port, self._max_sharpe_port, self._max_sortino_port], keys=["Min Volatiity", "Max Sharpe Ratio", "Max Sortino Ratio"], join='inner', axis=1)
         print( "=" * 80)
         print(df_out)
         print( "=" * 80)

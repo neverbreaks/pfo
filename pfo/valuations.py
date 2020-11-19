@@ -24,6 +24,11 @@ def daily_log_returns(data) -> pd.DataFrame:
     """
     return np.log(1.0 + daily_returns(data)).dropna(how="all")
 
+def downside_log_return(data):
+    neg_log_return = daily_log_returns(data)
+    neg_log_return[neg_log_return > 0] = 0
+    return neg_log_return
+
 
 def yearly_returns(data: pd.DataFrame, freq=252, type='log') -> pd.DataFrame:
 

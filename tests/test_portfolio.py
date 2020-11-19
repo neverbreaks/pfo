@@ -61,7 +61,7 @@ def test_portfolio_csv_pass_0():
     d = d_pass_csv[0]
     data = download(**d)
     data = clean_data(data)
-    portfolio = Portfolio(data = data, num_portfolios=1000, yr_calc_alg = 'log')
+    portfolio = Portfolio(data = data, num_portfolios=10000, yr_calc_alg = 'log')
     portfolio.plot_portfolios()
     portfolio.print_results()
 

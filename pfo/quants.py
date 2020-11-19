@@ -1,6 +1,6 @@
 import numpy as np
 import pandas as pd
-from pfo.valuations import cov_matrix, yearly_returns, daily_log_returns
+from pfo.valuations import cov_matrix, yearly_returns, daily_log_returns, downside_log_return
 
 
 def portfolio_variance(cov_matrix, weights):
@@ -8,12 +8,6 @@ def portfolio_variance(cov_matrix, weights):
 
 def portfolio_daily_returns(weights, daily_returns):
     return  weights * daily_returns
-
-def portfolio_downside_daily_returns(weights, daily_returns):
-    pf_downside_daily_return = portfolio_daily_returns(weights, daily_returns)
-    pf_downside_daily_return[pf_downside_daily_return > 0] = 0
-
-    return  pf_downside_daily_return
 
 def portfolio_yearly_returns(weights, yearly_returns):
     return np.dot(weights, yearly_returns)
@@ -23,10 +17,11 @@ def portfolio_yearly_volatility(weights, pf_cvm, freq = 252):
     daily_volatility = np.sqrt(var)  # Daily standard deviation
     return daily_volatility * np.sqrt(freq)  # Annual standard deviation = volatility
 
-def mc_random_portfolios(data, risk_free_rate=0.0425, num_portfolios = 100, yr_calc_alg = 'log', freq = 252):
+def mc_random_portfolios(data, risk_free_rate=0.01, num_portfolios = 10000, yr_calc_alg = 'log', freq = 252):
 
     pf_ret = [] # Define an empty array for portfolio returns
     pf_vol = [] # Define an empty array for portfolio volatility
+    pf_down_vol = []
     pf_weights = [] # Define an empty array for asset weights
     pf_sharp_ratio = []  # Define an empty array for Sharp ratio
     pf_sortino_ratio = []  # Define an empty array for Sortino ratio
@@ -34,15 +29,16 @@ def mc_random_portfolios(data, risk_free_rate=0.0425, num_portfolios = 100, yr_c
     pf_cvm = cov_matrix(data)
     stocks_yearly_returns = yearly_returns(data, freq=freq, type='log')
     stocks_daily_returns = daily_log_returns(data)
+    dwnsd_log_return = downside_log_return(data)
+    sqr_downside_log_return = dwnsd_log_return**2
 
-    num_assets = len(data.columns)
-
-
+    pf_neg_std = downside_log_return(data).std()
+    pf_std = stocks_daily_returns.std()
     # stocks_downsides_daily_returns = stocks_daily_returns.copy(deep=True)
     # num_of_obseravtions = len(stocks_downsides_daily_returns.index)
     # stocks_downsides_daily_returns[stocks_downsides_daily_returns > 0] = 0
     # stocks_downsides_daily_returns = stocks_downsides_daily_returns[stocks_downsides_daily_returns <= 0]**2
-
+    num_assets=len(data.columns)
 
     for portfolio in range(num_portfolios):
         weights = np.random.random(num_assets)
@@ -57,14 +53,14 @@ def mc_random_portfolios(data, risk_free_rate=0.0425, num_portfolios = 100, yr_c
 
         pf_sharp_ratio.append((returns-risk_free_rate)/volatility)
 
-        pf_daily_return = portfolio_downside_daily_returns(weights, stocks_daily_returns)
+        step_1 = dwnsd_log_return.std()
+        step_2 = step_1 * np.sqrt(freq)
+        step_3 = (step_2 * weights).sum()
+        pf_down_vol.append(step_3)
 
-        #
-        # var0 = np.sqrt(stocks_downsides_daily_returns.mul(weights).mean()).sum()*np.sqrt(freq)
-        #
-        # pf_sortino_ratio.append(returns-risk_free_rate / var0)
+        pf_sortino_ratio.append(returns-risk_free_rate / step_3)
 
-    df_rv = {'Returns': pf_ret, 'Volatility': pf_vol, 'Sharp Ratio': pf_sharp_ratio} #, 'Sortino Ratio': pf_sortino_ratio}
+    df_rv = {'Returns': pf_ret, 'Volatility': pf_vol, 'Down. Volatility': pf_down_vol,'Sharp Ratio': pf_sharp_ratio, 'Sortino Ratio': pf_sortino_ratio}
 
     for counter, symbol in enumerate(data.columns, start=0):
         df_rv[symbol] = [w[counter] for w in pf_weights]
