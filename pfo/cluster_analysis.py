@@ -112,7 +112,7 @@ def cluster_stocks(data: pd.DataFrame, n_clusters=5, verbose=False):
     for name, cluster in zip(pf_return_means.index, idx):
         clusters[cluster].append(name)
 
-    # Calculating avg comulative daily return for each cluter and store
+    # Calculating avg comulative daily return for each cluster and store
     # in pf_daily_returns under special stock name - avg{Cluster index}
     for i in list(set(idx)):
         s = 'avg' + str(i)

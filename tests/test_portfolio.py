@@ -73,3 +73,5 @@ def test_portfolio_moex_pass_0():
     data = download(**d)
     data = clean_data(data)
     portfolio = Portfolio(data = data)
+    portfolio.plot_portfolios()
+    portfolio.print_results()

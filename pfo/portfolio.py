@@ -74,7 +74,6 @@ class Portfolio(object):
 
     def print_results(self):
         df_out = pd.concat([self._min_vol_port, self._max_sharpe_port], keys=["Min Volatiity", "Max Sharpe Ratio"], join='inner', axis=1)
-        print("\n")
         print( "=" * 80)
         print(df_out)
         print( "=" * 80)

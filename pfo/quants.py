@@ -2,6 +2,7 @@ import numpy as np
 import pandas as pd
 from pfo.valuations import cov_matrix, yearly_returns, daily_log_returns
 
+
 def portfolio_variance(cov_matrix, weights):
     return cov_matrix.mul(weights, axis=0).mul(weights, axis=1).sum().sum()
 
@@ -62,7 +63,6 @@ def mc_random_portfolios(data, risk_free_rate=0.0425, num_portfolios = 100, yr_c
         # var0 = np.sqrt(stocks_downsides_daily_returns.mul(weights).mean()).sum()*np.sqrt(freq)
         #
         # pf_sortino_ratio.append(returns-risk_free_rate / var0)
-        print("")
 
     df_rv = {'Returns': pf_ret, 'Volatility': pf_vol, 'Sharp Ratio': pf_sharp_ratio} #, 'Sortino Ratio': pf_sortino_ratio}
 
