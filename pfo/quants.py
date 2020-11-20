@@ -1,6 +1,6 @@
 import numpy as np
 import pandas as pd
-from pfo.valuations import cov_matrix, yearly_returns, daily_log_returns, downside_log_return
+from pfo.valuations import cov_matrix, yearly_returns, downside_volatility
 
 
 def portfolio_variance(cov_matrix, weights):
@@ -28,7 +28,8 @@ def mc_random_portfolios(data, risk_free_rate=0.01, num_portfolios = 10000, yr_c
 
     cvm = cov_matrix(data)
     stocks_yearly_returns = yearly_returns(data, freq=freq, type='log')
-    stocks_yearly_downside_vol = downside_log_return(data).std() * np.sqrt(freq)
+    #stocks_yearly_downside_vol = downside_log_return(data).std() * np.sqrt(freq)
+    stocks_yearly_downside_vol = downside_volatility(data)
 
     num_assets=len(data.columns)
 

@@ -90,8 +90,4 @@ class portfolio(object):
         print('=' * 80)
 
     def store_to_xls(self):
-        print('\n')
-        print('=' * 80)
-        with pd.option_context('display.max_rows', None, 'display.max_columns', None):
-            print(self._df_results)
-        print('=' * 80)
+       pass

@@ -2,12 +2,25 @@ import numpy as np
 import pandas as pd
 import matplotlib.pylab as plt
 from pfo.data_utils import clean_data
-from pfo.valuations import yearly_returns, daily_log_returns, volatility
+from pfo.valuations import yearly_returns, daily_log_returns, volatility, downside_volatility
 from sklearn.cluster import KMeans
 from scipy.cluster.vq import kmeans, vq
 
-def sortino_ratio(data: pd.DataFrame):
-    pass
+def ratios(data: pd.DataFrame, risk_free_rate=0.001):
+    yearly = yearly_returns(data, type='log')
+    vol = volatility(data)
+    downside_vol =  downside_volatility(data)
+
+    df_results = pd.concat(
+        [yearly, vol, downside_vol],
+        keys=['Yearly mean returns', 'Volatility', 'Downside Volatility'], join='inner', axis=1)
+
+    df_results['Sharp Ratio'] =  (df_results['Yearly mean returns']-risk_free_rate)/df_results['Volatility']
+    df_results['Sortino Ratio'] = (df_results['Yearly mean returns'] - risk_free_rate) / df_results['Downside Volatility']
+
+    with pd.option_context('display.max_rows', None, 'display.max_columns', None):
+        print(df_results)
+
 
 def cluster_stocks(data: pd.DataFrame, n_clusters=5, verbose=False):
     """ Gets the number of clusters and tries to cluster(KMeans) stocks based on

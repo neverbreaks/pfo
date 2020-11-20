@@ -46,6 +46,9 @@ def volatility(data, freq=252) -> pd.Series:
     return daily_log_returns(data).std().apply(lambda x: x * np.sqrt(freq)) \
         .dropna(how="all").replace([np.inf, -np.inf], np.nan)
 
+def downside_volatility(data, freq=252) -> pd.Series:
+    return downside_log_return(data).std().apply(lambda x: x * np.sqrt(freq)) \
+        .dropna(how="all").replace([np.inf, -np.inf], np.nan)
 
 def cov_matrix(data) -> pd.DataFrame:
     return daily_log_returns(data).cov() \
