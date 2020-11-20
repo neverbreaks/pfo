@@ -4,7 +4,7 @@ import pandas as pd
 import pytest
 
 from pfo.market_data import download, Source
-from  pfo.portfolio import Portfolio
+from  pfo.portfolio import portfolio
 from pfo.data_utils import clean_data
 
 path = (Path.cwd() / "data").resolve()
@@ -63,9 +63,9 @@ def test_portfolio_csv_pass_0():
     d = d_pass_csv[0]
     data = download(**d)
     data = clean_data(data)
-    portfolio = Portfolio(data = data, num_portfolios=10000, yr_calc_alg = 'log')
-    portfolio.plot_portfolios()
-    portfolio.print_results()
+    pf = portfolio(data = data, num_portfolios=10000, yr_calc_alg ='log')
+    pf.plot_portfolios()
+    pf.print_results()
 
 ###############################################################################
 #                                      MOEX                                   #
@@ -74,23 +74,23 @@ def test_portfolio_moex_pass_0():
     d = d_pass_moex[0]
     data = download(**d)
     data = clean_data(data)
-    portfolio = Portfolio(data = data)
-    portfolio.plot_portfolios()
-    portfolio.print_results()
+    pf = portfolio(data = data)
+    pf.plot_portfolios()
+    pf.print_results()
 
 
 def test_portfolio_yfinance_pass_0():
     d = d_pass_yfinance[2]
     data = download(**d)
     data = clean_data(data)
-    portfolio = Portfolio(data=data, risk_free_rate=0.001, freq=252, num_portfolios=10000)
-    portfolio.plot_portfolios()
-    portfolio.print_results()
+    pf = portfolio(data=data, risk_free_rate=0.001, freq=252, num_portfolios=10000)
+    pf.plot_portfolios()
+    pf.print_results()
 
 def test_portfolio_yfinance_pass_1():
     d = d_pass_yfinance[0]
     data = download(**d)
     data = clean_data(data)
-    portfolio = Portfolio(data=data, risk_free_rate=0.001, freq=252, num_portfolios=10000)
-    portfolio.plot_portfolios()
-    portfolio.print_results()
+    pf = portfolio(data=data, risk_free_rate=0.001, freq=252, num_portfolios=10000)
+    pf.plot_portfolios()
+    pf.print_results()

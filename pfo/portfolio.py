@@ -4,7 +4,7 @@ import pandas as pd
 from pfo.quants import mc_random_portfolios
 
 
-class Portfolio(object):
+class portfolio(object):
     """Object that contains information about a investment portfolio.
     To initialise the object, it does not require any input.
     To commence the analysis the portfolio must be initiated
@@ -29,6 +29,7 @@ class Portfolio(object):
         self._min_downside_vol_port = None
         self._max_sharpe_port = None
         self._max_sortino_port = None
+        self._df_results = None
         self._num_portfolios = num_portfolios
         self._yr_calc_alg = yr_calc_alg
         # stocks prices
@@ -39,10 +40,6 @@ class Portfolio(object):
     @property
     def data(self):
         return self._data
-
-    ###############################################################################
-    #                                     QUANTS                                  #
-    ###############################################################################
 
     def _ef(self):
         pass
@@ -61,6 +58,10 @@ class Portfolio(object):
         self._max_sharpe_port.rename_axis('Max Sharpe Ratio')
         self._max_sortino_port.rename_axis('Max Sortino Ratio')
 
+        self._df_results = pd.concat(
+            [self._min_vol_port, self._min_downside_vol_port, self._max_sharpe_port, self._max_sortino_port],
+            keys=['Min Volatiity', 'Down. Volatility', 'Max Sharpe Ratio', 'Max Sortino Ratio'], join='inner', axis=1)
+
         self._ef()
 
     ###############################################################################
@@ -74,8 +75,6 @@ class Portfolio(object):
         plt.scatter(self._max_sharpe_port[1], self._max_sharpe_port[0], color='g', marker='*', s=500)
         plt.scatter(self._max_sortino_port[1], self._max_sortino_port[0], color='y', marker='*', s=500)
 
-        plt.show()
-
     def plot_ef(self):
         pass
 
@@ -84,10 +83,15 @@ class Portfolio(object):
     ###############################################################################
 
     def print_results(self):
-        df_out = pd.concat([self._min_vol_port, self._min_downside_vol_port, self._max_sharpe_port, self._max_sortino_port],
-                           keys=['Min Volatiity', 'Down. Volatility', 'Max Sharpe Ratio', 'Max Sortino Ratio'], join='inner', axis=1)
         print('\n')
         print('=' * 80)
         with pd.option_context('display.max_rows', None, 'display.max_columns', None):
-            print(df_out)
+            print(self._df_results)
+        print('=' * 80)
+
+    def store_to_xls(self):
+        print('\n')
+        print('=' * 80)
+        with pd.option_context('display.max_rows', None, 'display.max_columns', None):
+            print(self._df_results)
         print('=' * 80)

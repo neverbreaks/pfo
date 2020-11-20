@@ -1,7 +1,7 @@
 from pathlib import Path
 import numpy as np
 from pfo.market_data import download, Source
-from pfo.cluster_analysis import cluster_stocks
+from pfo.stocks import cluster_stocks
 
 path = (Path.cwd() / "data").resolve()
 

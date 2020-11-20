@@ -6,6 +6,8 @@ from pfo.valuations import yearly_returns, daily_log_returns, volatility
 from sklearn.cluster import KMeans
 from scipy.cluster.vq import kmeans, vq
 
+def sortino_ratio(data: pd.DataFrame):
+    pass
 
 def cluster_stocks(data: pd.DataFrame, n_clusters=5, verbose=False):
     """ Gets the number of clusters and tries to cluster(KMeans) stocks based on
@@ -26,7 +28,6 @@ def cluster_stocks(data: pd.DataFrame, n_clusters=5, verbose=False):
         :Output:
              :clusters: ``list`` of (Stocks) tickers.
     """
-    data = clean_data(data)
 
     if not isinstance(n_clusters, int):
         raise ValueError('Total number of clusters must be integer.')
@@ -138,6 +139,5 @@ def cluster_stocks(data: pd.DataFrame, n_clusters=5, verbose=False):
             print(f'Cluster #{n}')
             print(clusters[n])
 
-        plt.show()
 
     return clusters
