@@ -38,6 +38,22 @@ class portfolio(object):
         self._calc()
 
     @property
+    def min_vol_port(self):
+        return self._min_vol_port
+
+    @property
+    def min_downside_vol_port (self):
+        return self._min_downside_vol_port
+
+    @property
+    def max_sharp_port(self):
+        return self._max_sharpe_port
+
+    @property
+    def max_sortino_port(self):
+        return self._max_sortino_port
+
+    @property
     def data(self):
         return self._data
 
