@@ -6,6 +6,7 @@ from pfo.portfolio import portfolio
 import pandas as pd
 from pfo.quants import portfolio_yearly_returns
 from pfo.valuations import yearly_returns
+import numpy as np
 
 pd.set_option('display.max_rows', None)
 pd.set_option('display.max_columns', None)
@@ -45,7 +46,7 @@ print('Sortino portfolio 14-17')
 
 sortino_data14_17 = download(source=Source.YFINANCE, tickers = pf_stocks_sortino, start_date=start_date14_17, end_date=end_date14_17)
 sortino_data14_17 = clean_data(sortino_data14_17)
-pf_sortino14_17 = portfolio(data=sortino_data14_17, risk_free_rate=0.001, freq=252, num_portfolios=100)
+pf_sortino14_17 = portfolio(data=sortino_data14_17, risk_free_rate=0.001, freq=252, num_portfolios=100000)
 pf_sortino14_17.plot_portfolios()
 pf_sortino14_17.print_results()
 pf_proposed_sortino14_17 = pf_sortino14_17.max_sortino_port
@@ -68,9 +69,9 @@ stocks_yearly_returns = yearly_returns(sortino_data17_20)
 returns = pd.concat([df_weights_sortino, stocks_yearly_returns],
                     keys=['Weights', 'Yearly returns'], join='inner', axis=1)
 returns.columns = returns.columns.droplevel(1)
-returns['Weigted return'] = returns['Weights'] * returns['Yearly returns']
-
-print(returns['Weigted return'].sum())
+returns['Weighted return'] = returns['Weights'] * returns['Yearly returns']
+ret17_20 = returns['Weighted return'].sum()
+print(f'Yearly returns - 17 - 20 :{ret17_20}')
 
 # print('=' * 80)
 # print('Sharp portfolio 17-20')
