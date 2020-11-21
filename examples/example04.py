@@ -67,9 +67,10 @@ sortino_data17_20 = clean_data(sortino_data17_20)
 stocks_yearly_returns = yearly_returns(sortino_data17_20)
 returns = pd.concat([df_weights_sortino, stocks_yearly_returns],
                     keys=['Weights', 'Yearly returns'], join='inner', axis=1)
+returns.columns = returns.columns.droplevel(1)
+returns['Weigted return'] = returns['Weights'] * returns['Yearly returns']
 
-#returns['Weighted return'] = returns[returns['Weights']]*returns[returns['Yearly returns']]
-print(returns)
+print(returns['Weigted return'].sum())
 
 # print('=' * 80)
 # print('Sharp portfolio 17-20')
