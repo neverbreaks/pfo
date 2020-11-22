@@ -35,7 +35,7 @@ def _download_csv(tickers, path, start_date, end_date) -> pd.DataFrame:
     if p.is_dir():
         files = p.glob('*.csv')
     else:
-        raise Exception('Param path should lead to folder')
+        raise Exception('path should be a folder')
 
     available_tickers = [f.stem for f in files]
 
