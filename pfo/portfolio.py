@@ -11,7 +11,7 @@ class portfolio(object):
     with ''build'' function.
     """
 
-    def __init__(self, data: pd.DataFrame, risk_free_rate=0.0425, freq=252, num_portfolios=10000, yr_calc_alg='log'):
+    def __init__(self, data: pd.DataFrame, risk_free_rate=0.0425, freq=252, num_portfolios=10000):
         if not isinstance(freq, int):
             raise ValueError('Frequency must be an integer')
         elif freq <= 0:
@@ -31,7 +31,6 @@ class portfolio(object):
         self._max_sortino_port = None
         self._df_results = None
         self._num_portfolios = num_portfolios
-        self._yr_calc_alg = yr_calc_alg
         # stocks prices
         self._data = data
 
@@ -62,8 +61,7 @@ class portfolio(object):
 
     def _calc(self):
         self._portfolios = mc_random_portfolios(data=self._data, risk_free_rate=self._risk_free_rate, \
-                                                num_portfolios=self._num_portfolios, freq=self._freq, \
-                                                yr_calc_alg=self._yr_calc_alg)
+                                                num_portfolios=self._num_portfolios, freq=self._freq)
 
         self._min_vol_port = self._portfolios.iloc[self._portfolios['Volatility'].idxmin()]
         self._min_downside_vol_port = self._portfolios.iloc[self._portfolios['Down. Volatility'].idxmin()]
