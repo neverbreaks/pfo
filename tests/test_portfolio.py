@@ -3,9 +3,8 @@ from pathlib import Path
 import pandas as pd
 import pytest
 
-from pfo.market_data import download, Source
+from pfo.market_data import download, Source, clean_data
 from  pfo.portfolio import portfolio
-from pfo.data_utils import clean_data
 
 path = (Path.cwd() / "data").resolve()
 start_date = datetime.datetime(2018, 11, 19)

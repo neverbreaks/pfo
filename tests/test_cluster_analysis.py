@@ -1,6 +1,6 @@
 from pathlib import Path
 import numpy as np
-from pfo.market_data import download, Source
+from pfo.market_data import download, Source, clean_data
 from pfo.stocks import cluster_stocks
 
 path = (Path.cwd() / "data").resolve()
@@ -16,6 +16,7 @@ d_pass_csv = [
 def test_cluster_stocks_pass_0():
     d = d_pass_csv[0]
     data = download(**d)
+    data = clean_data(data)
     data.dropna(how="all").replace([np.inf, -np.inf], np.nan)
     cluster_stocks(data, n_clusters=4, verbose=True)
 

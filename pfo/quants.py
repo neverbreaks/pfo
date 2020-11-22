@@ -1,21 +1,8 @@
 import numpy as np
 import pandas as pd
-from pfo.valuations import cov_matrix, yearly_returns, downside_volatility
 
+from pfo.stocks import yearly_returns, downside_volatility, cov_matrix
 
-def portfolio_variance(cov_matrix, weights):
-    return cov_matrix.mul(weights, axis=0).mul(weights, axis=1).sum().sum()
-
-def portfolio_daily_returns(weights, daily_returns):
-    return  weights * daily_returns
-
-def portfolio_yearly_returns(weights, yearly_returns):
-    return np.dot(weights, yearly_returns)
-
-def portfolio_yearly_volatility(weights, pf_cvm, freq = 252):
-    var = portfolio_variance(pf_cvm, weights)  # Portfolio Variance
-    daily_volatility = np.sqrt(var)  # Daily standard deviation
-    return daily_volatility * np.sqrt(freq)  # Annual standard deviation = volatility
 
 def mc_random_portfolios(data, risk_free_rate=0.01, num_portfolios = 10000, yr_calc_alg = 'log', freq = 252):
 
@@ -28,7 +15,6 @@ def mc_random_portfolios(data, risk_free_rate=0.01, num_portfolios = 10000, yr_c
 
     cvm = cov_matrix(data)
     stocks_yearly_returns = yearly_returns(data, freq=freq, type='log')
-    #stocks_yearly_downside_vol = downside_log_return(data).std() * np.sqrt(freq)
     stocks_yearly_downside_vol = downside_volatility(data)
 
     num_assets=len(data.columns)
@@ -59,3 +45,21 @@ def mc_random_portfolios(data, risk_free_rate=0.01, num_portfolios = 10000, yr_c
     portfolios = pd.DataFrame(df_rv)
 
     return portfolios
+
+
+def portfolio_variance(cov_matrix, weights):
+    return cov_matrix.mul(weights, axis=0).mul(weights, axis=1).sum().sum()
+
+
+def portfolio_daily_returns(weights, daily_returns):
+    return  weights * daily_returns
+
+
+def portfolio_yearly_returns(weights, yearly_returns):
+    return np.dot(weights, yearly_returns)
+
+
+def portfolio_yearly_volatility(weights, pf_cvm, freq = 252):
+    var = portfolio_variance(pf_cvm, weights)  # Portfolio Variance
+    daily_volatility = np.sqrt(var)  # Daily standard deviation
+    return daily_volatility * np.sqrt(freq)  # Annual standard deviation = volatility

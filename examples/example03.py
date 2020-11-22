@@ -1,11 +1,10 @@
 import datetime
 import matplotlib.pyplot as plt
-from pfo.data_utils import clean_data
 from pfo.stocks import ratios
 from pfo.portfolio import portfolio
 import pandas as pd
 
-from pfo.market_data import download, Source
+from pfo.market_data import download, Source, clean_data
 
 start_date = datetime.datetime(2017, 11, 20)
 end_date = '2020-11-20'

@@ -1,11 +1,9 @@
 import datetime
 import matplotlib.pyplot as plt
-from pfo.data_utils import clean_data
-from pfo.stocks import ratios
+from pfo.stocks import ratios, yearly_returns
+from pfo.quants import portfolio_yearly_returns
 from pfo.portfolio import portfolio
 import pandas as pd
-from pfo.quants import portfolio_yearly_returns
-from pfo.valuations import yearly_returns
 import numpy as np
 
 pd.set_option('display.max_rows', None)
@@ -14,7 +12,7 @@ pd.set_option('display.width', None)
 pd.set_option('display.max_colwidth', None)
 pd.set_option('display.width', 150)
 
-from pfo.market_data import download, Source
+from pfo.market_data import download, Source, clean_data
 
 start_date14_17 = datetime.datetime(2014, 11, 20)
 end_date14_17 = datetime.datetime(2017, 11, 19)
