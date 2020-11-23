@@ -37,6 +37,8 @@ class efficient_frontier(object):
         else:
             self._data = data
 
+        self._efficient_portfolios = None
+
     def max_sharpe_ratio(self):
         num_stocks = len(self._data.columns)
         args = (self._data, self._risk_free_rate, self._freq)
@@ -86,7 +88,7 @@ class efficient_frontier(object):
             efficients.append(self.efficient_return(ret))
         return efficients
 
-    def efficient_portfolios(self):
+    def efficient_portfolios(self, plot = True):
         max_sharpe = self.max_sharpe_ratio()
         min_vol = self.min_volatility()
 
@@ -103,10 +105,15 @@ class efficient_frontier(object):
         volatility_min = res_min.get('Volatility')
 
         target = np.linspace(returns_min, returns_max, 50)
-        efficient_portfolios = self.efficient_frontier(returns_range=target)
-        plt.plot([p['fun'] for p in efficient_portfolios], target, 'k-x', label='efficient frontier')
+        self._efficient_portfolios = self.efficient_frontier(returns_range=target)
 
-        return efficient_portfolios
+        if plot:
+            plt.plot([p['fun'] for p in self._efficient_portfolios], target, 'k-x',
+                     label='efficient frontier', color = 'g')
+
+        return self._efficient_portfolios
+
+
 
     def _neg_sharp_ratio(self, weights, data, risk_free_rate, freq=252):
         sharp = pf_valuation(weights=weights, data=data, risk_free_rate=risk_free_rate, freq=freq).get('Sharp')
