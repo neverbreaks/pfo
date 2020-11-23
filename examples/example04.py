@@ -1,7 +1,7 @@
 import datetime
 import matplotlib.pyplot as plt
-from pfo.stocks import ratios, yearly_returns
-from pfo.quants import portfolio_yearly_returns
+from pfo.stocks import ratios, mean_returns
+from pfo.quants import pf_mean_returns
 from pfo.portfolio import portfolio
 import pandas as pd
 import numpy as np
@@ -63,7 +63,7 @@ print('Sortino portfolio 17-20')
 df_weights_sortino = pd.DataFrame(pf_proposed_sortino14_17, index = pf_stocks_sortino)
 sortino_data17_20 = download(source=Source.YFINANCE, tickers = pf_stocks_sortino, start_date=start_date17_20, end_date=end_date17_20)
 sortino_data17_20 = clean_data(sortino_data17_20)
-stocks_yearly_returns = yearly_returns(sortino_data17_20)
+stocks_yearly_returns = mean_returns(sortino_data17_20)
 returns = pd.concat([df_weights_sortino, stocks_yearly_returns],
                     keys=['Weights', 'Yearly returns'], join='inner', axis=1)
 returns.columns = returns.columns.droplevel(1)

@@ -10,6 +10,7 @@ import requests
 from pathlib import Path, WindowsPath
 from enum import Enum
 import datetime
+_price_col_names = ['WAPRICE', 'Adj. Close', 'Adj Close', 'CLOSE', 'close', 'Close']
 
 
 class Source(Enum):
@@ -18,7 +19,7 @@ class Source(Enum):
     CSV = 3
 
 
-def _download_csv(tickers, path, start_date, end_date) -> pd.DataFrame:
+def _download_csv(tickers: list, path, start_date:datetime, end_date: datetime) -> pd.DataFrame:
     data = pd.DataFrame()
 
     if isinstance(path, str):
@@ -82,7 +83,7 @@ def _download_csv(tickers, path, start_date, end_date) -> pd.DataFrame:
     return data
 
 
-def _download_yfinance(tickers, start_date, end_date) -> pd.DataFrame:
+def _download_yfinance(tickers : list, start_date: datetime, end_date: datetime) -> pd.DataFrame:
     data = pd.DataFrame()
 
     if len(tickers) == 0:
@@ -107,7 +108,7 @@ def _download_yfinance(tickers, start_date, end_date) -> pd.DataFrame:
     return data
 
 
-def _download_moex(tickers, start_date, end_date, boards) -> pd.DataFrame:
+def _download_moex(tickers : list, start_date : datetime, end_date:datetime, boards: list) -> pd.DataFrame:
     data = pd.DataFrame()
     arguments = {'securities.columns': ('SECID,'
                                         'REGNUMBER,'
@@ -166,7 +167,7 @@ def download(source: Source, **kwargs) -> pd.DataFrame:
                                                              {'board': 'FQBR', 'shares': 'foreignshares'},
                                                          ]
     :Output:
-     : rates: pandas.DataFrame, index = Date,
+     : rates: pandas.DataFrame, index = Date
     """
     tickers = kwargs.get('tickers', [])
     start_date = kwargs.get('start_date', None)
@@ -188,13 +189,16 @@ def download(source: Source, **kwargs) -> pd.DataFrame:
 
 
 def cache(source: Source, path, **kwargs):
-    print("")
+    pass
 
 
-_price_col_names = ['WAPRICE', 'Adj. Close', 'Adj Close', 'CLOSE', 'close', 'Close']
-
-
-def price_column(columns):
+def price_column(columns : list):
+    """This function takes list of columns and returns
+       preferable name for analysis i.e. Adj. Close is preferable to Close.
+       Preferable colums will be extracted to config file in the future.
+        :Output:
+         : column name: str,
+        """
     unique_names = list(set(columns))
 
     for name in unique_names:
@@ -205,6 +209,14 @@ def price_column(columns):
 
 
 def clean_data(data: pd.DataFrame) -> pd.DataFrame:
+    """This function takes pandas dataframe with multindex column
+       and transforms it to a simple dataframe with prices. The new
+       i.e. , index = Date, columns names are stocks, values - preferable
+       prices
+        :Output:
+         : data: pandas datafram, index = Date,
+        """
+
     priority_column = price_column(data.columns.get_level_values(0))
 
     if not isinstance(data, pd.DataFrame):

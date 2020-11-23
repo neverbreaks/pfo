@@ -5,7 +5,7 @@ from sklearn.cluster import KMeans
 from scipy.cluster.vq import vq
 
 def ratios(data: pd.DataFrame, risk_free_rate=0.001, verbouse = False):
-    yearly = yearly_returns(data, type='log')
+    yearly = mean_returns(data, type='log')
     vol = volatility(data)
     downside_vol =  downside_volatility(data)
 
@@ -53,7 +53,7 @@ def cluster_stocks(data: pd.DataFrame, n_clusters=5, verbose=False):
         raise ValueError(f'Total number of clusters({n_clusters}) '
                          f'must be <= number of stocks({len(data.columns)}) in portfolio')
 
-    pf_return_means = yearly_returns(data, type='log')
+    pf_return_means = mean_returns(data, type='log')
     pf_daily_returns = daily_log_returns(data)
     pf_volatility = volatility(data)
     # format the data as a numpy array to feed into the K-Means algorithm
@@ -186,7 +186,7 @@ def downside_log_return(data: pd.DataFrame):
     return neg_log_return
 
 
-def yearly_returns(data: pd.DataFrame, freq=252, type='log') -> pd.DataFrame:
+def mean_returns(data: pd.DataFrame, freq=252, type='log') -> pd.DataFrame:
 
     if type == 'pct':
         return daily_returns(data).mean() * freq

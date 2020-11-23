@@ -2,6 +2,7 @@ import matplotlib.pyplot as plt
 import pandas as pd
 
 from pfo.quants import mc_random_portfolios
+from pfo.market_data import clean_data
 
 
 class portfolio(object):
@@ -24,6 +25,14 @@ class portfolio(object):
         else:
             self._risk_free_rate = risk_free_rate
 
+        if not isinstance(data, pd.DataFrame):
+            raise ValueError('Data should be a pandas.DataFrame')
+
+        if isinstance(data.columns, pd.MultiIndex):
+            self._data = clean_data(data)
+        else:
+            self._data = data
+
         self._portfolios = None
         self._min_vol_port = None
         self._min_downside_vol_port = None
@@ -31,8 +40,7 @@ class portfolio(object):
         self._max_sortino_port = None
         self._df_results = None
         self._num_portfolios = num_portfolios
-        # stocks prices
-        self._data = data
+
 
         self._calc()
 

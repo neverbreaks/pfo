@@ -1,7 +1,7 @@
 import numpy as np
 import pandas as pd
 
-from pfo.stocks import yearly_returns, downside_volatility, cov_matrix
+from pfo.stocks import mean_returns, downside_volatility, cov_matrix
 
 
 def mc_random_portfolios(data: pd.DataFrame, risk_free_rate=0.01, num_portfolios=10000, freq=252):
@@ -13,8 +13,8 @@ def mc_random_portfolios(data: pd.DataFrame, risk_free_rate=0.01, num_portfolios
     pf_sortino_ratio = []  # Define an empty array for Sortino ratio
 
     cvm = cov_matrix(data)
-    stocks_yearly_returns = yearly_returns(data, freq=freq, type='log')
-    stocks_yearly_downside_vol = downside_volatility(data)
+    stocks_returns = mean_returns(data, freq=freq, type='log')
+    stocks_negative_volatility = downside_volatility(data)
 
     num_assets = len(data.columns)
 
@@ -23,17 +23,17 @@ def mc_random_portfolios(data: pd.DataFrame, risk_free_rate=0.01, num_portfolios
         weights = weights / np.sum(weights)
         pf_weights.append(weights)
         # Returns are the product of individual expected returns of asset and its weights
-        returns = portfolio_yearly_returns(weights, stocks_yearly_returns)
+        returns = pf_mean_returns(weights, stocks_returns)
         pf_ret.append(returns)
 
-        volatility = portfolio_yearly_volatility(weights, cvm, freq=freq)  # Annual standard deviation = volatility
+        volatility = pf_volatility(weights, cvm, freq=freq)  # Annual standard deviation = volatility
         pf_vol.append(volatility)
 
         sh_ratio = (returns - risk_free_rate) / volatility
         pf_sharp_ratio.append(sh_ratio)
 
-        pf_stocks_yearly_downside_vol = portfolio_downside_volatility(weights = weights,
-                                                                      stocks_yearly_downside_vol=stocks_yearly_downside_vol)
+        pf_stocks_yearly_downside_vol = pf_negative_volatility(weights=weights,
+                                                               stocks_yearly_downside_vol=stocks_negative_volatility)
         pf_down_vol.append(pf_stocks_yearly_downside_vol)
 
         sor_ratio = (returns - risk_free_rate) / pf_stocks_yearly_downside_vol
@@ -50,17 +50,18 @@ def mc_random_portfolios(data: pd.DataFrame, risk_free_rate=0.01, num_portfolios
     return portfolios
 
 
-def portfolio_valuation(weights, data: pd.DataFrame, risk_free_rate=0.001, freq=252):
-
+def pf_valuation(weights, data: pd.DataFrame, risk_free_rate=0.001, freq=252):
     weights_ndarray = None
     if isinstance(weights, pd.DataFrame):
-       weights_list = []
-       for column in data.columns:
-           #stock_weight = weights.loc[[column]].iloc[0:1, 0:1]
-           stock_weight = weights.at[column, weights.columns[0]]
-           weights_list.append(stock_weight)
+        if len(weights.columns) > 1:
+            raise ValueError('Incorrect dataframe with weights provided. Expected 1 column with weights')
 
-       weights_ndarray = np.array(weights_list)
+        weights_list = []
+        for column in data.columns:
+            stock_weight = weights.at[column, weights.columns[0]]
+            weights_list.append(stock_weight)
+
+        weights_ndarray = np.array(weights_list)
 
     elif isinstance(weights, np.ndarray):
         weights_ndarray = weights
@@ -71,41 +72,37 @@ def portfolio_valuation(weights, data: pd.DataFrame, risk_free_rate=0.001, freq=
         raise ValueError('Incorrect data or weights were provided')
 
     cvm = cov_matrix(data)
-    stocks_yearly_returns = yearly_returns(data, freq=freq, type='log')
+    stocks_yearly_returns = mean_returns(data, freq=freq, type='log')
     stocks_yearly_downside_vol = downside_volatility(data, freq=freq)
 
-    returns = portfolio_yearly_returns(weights_ndarray, stocks_yearly_returns)
-    volatility = portfolio_yearly_volatility(weights_ndarray, cvm, freq=freq)  # Annual standard deviation = volatility
+    returns = pf_mean_returns(weights_ndarray, stocks_yearly_returns)
+    volatility = pf_volatility(weights_ndarray, cvm, freq=freq)  # Annual standard deviation = volatility
     sh_ratio = (returns - risk_free_rate) / volatility
-    pf_stocks_yearly_downside_vol = portfolio_downside_volatility(weights=weights_ndarray,
-                                                                  stocks_yearly_downside_vol=stocks_yearly_downside_vol)
+    pf_stocks_yearly_downside_vol = pf_negative_volatility(weights=weights_ndarray,
+                                                           stocks_yearly_downside_vol=stocks_yearly_downside_vol)
     sor_ratio = (returns - risk_free_rate) / pf_stocks_yearly_downside_vol
 
     return {'Returns': returns, 'Volatility': volatility, 'Sharp': sh_ratio,
             'Downside volatility': pf_stocks_yearly_downside_vol, 'Sortino': sor_ratio}
 
 
-def sharp_ratio(returns, risk_free_rate, volatility):
-    return (returns - risk_free_rate) / volatility
-
-
-def portfolio_variance(weights, cov_matrix):
+def pf_variance(weights, cov_matrix):
     return cov_matrix.mul(weights, axis=0).mul(weights, axis=1).sum().sum()
 
 
-def portfolio_daily_returns(weights, daily_returns):
+def pf_daily_returns(weights, daily_returns):
     return weights * daily_returns
 
 
-def portfolio_yearly_returns(weights, yearly_returns):
+def pf_mean_returns(weights, yearly_returns):
     return np.dot(weights, yearly_returns)
 
 
-def portfolio_yearly_volatility(weights, pf_cvm, freq=252):
-    var = portfolio_variance(weights, pf_cvm)  # Portfolio Variance
+def pf_volatility(weights, pf_cvm, freq=252):
+    var = pf_variance(weights, pf_cvm)  # Portfolio Variance
     daily_volatility = np.sqrt(var)  # Daily standard deviation
     return daily_volatility * np.sqrt(freq)  # Annual standard deviation = volatility
 
 
-def portfolio_downside_volatility(weights, stocks_yearly_downside_vol):
+def pf_negative_volatility(weights, stocks_yearly_downside_vol):
     return (stocks_yearly_downside_vol * weights).sum()
