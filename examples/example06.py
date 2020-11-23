@@ -25,18 +25,22 @@ tickers = ['CSCO', 'V', 'ABBV', 'SBUX', 'MCD', 'INTC', \
            'MU', 'T', 'F', 'BIDU', 'BIIB', 'XOM', \
            'DIS', 'PFE', 'BMY']
 
-tickers = ['CSCO', 'V', 'ABBV']
+tickers = ['BABA', 'MA', 'AAPL', 'BA', 'TWTR', \
+           'MU', 'T', 'F', 'BIDU', 'BIIB', 'XOM', \
+           'DIS', 'PFE', 'BMY']
 
 data = download(source=Source.YFINANCE, tickers = tickers, start_date=start_date, end_date=end_date)
 
 
-pf = portfolio(data=data, risk_free_rate=0.001, freq=252, num_portfolios=1000)
+pf = portfolio(data=data, risk_free_rate=0.001, freq=252, num_portfolios=10000)
 pf.plot_portfolios()
 pf.print_results()
 
 ef = efficient_frontier(data=data)
 msr = ef.max_sharpe_ratio()
 mv = ef.min_volatility()
+print(msr)
+print(mv)
 ef.efficient_portfolios()
 
 plt.show()
