@@ -1,6 +1,7 @@
 import datetime
 import matplotlib.pyplot as plt
-from pfo.stocks import ratios, mean_returns
+from pfo.stocks import mean_returns
+from pfo.stocks.ratios import ratios
 from pfo.quants import pf_mean_returns, pf_valuation
 from pfo.portfolio import portfolio
 import pandas as pd
@@ -8,13 +9,11 @@ import numpy as np
 from pfo.market_data import download, Source, clean_data
 
 
-
 pd.set_option('display.max_rows', None)
 pd.set_option('display.max_columns', None)
 pd.set_option('display.width', None)
 pd.set_option('display.max_colwidth', None)
 pd.set_option('display.width', 150)
-
 
 
 start_date14_17 = datetime.datetime(2014, 11, 20)
@@ -35,6 +34,8 @@ tickers = ['CSCO', 'V', 'ABBV', 'SBUX', 'MCD', 'INTC', \
 
 data = download(source=Source.YFINANCE, tickers = tickers, start_date=start_date14_17, end_date=end_date14_17)
 data = clean_data(data)
+
+
 df_ratios = ratios(data=data)
 df_sortino = df_ratios[df_ratios['Sortino Ratio'] > 1.0]
 

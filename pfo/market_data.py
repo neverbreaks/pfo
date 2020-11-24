@@ -133,8 +133,6 @@ def _download_moex(tickers : list, start_date : datetime, end_date:datetime, boa
             stocks_prices = []
             for stock in board_df.index:
                 if stock in tickers:
-                    print(f' ---{stock}:')
-
                     stock_data = apimoex.get_board_history(session=session, security=stock, start=start_date, \
                                                            end=end_date, columns=columns, market=shares, board=brd)
 
@@ -220,7 +218,7 @@ def clean_data(data: pd.DataFrame) -> pd.DataFrame:
     priority_column = price_column(data.columns.get_level_values(0))
 
     if not isinstance(data, pd.DataFrame):
-        raise ValueError('Data should be a pandas.DataFrame')
+        raise ValueError('data should be a pandas.DataFrame')
     elif not isinstance(data.columns, pd.MultiIndex):
         raise ValueError('Multiindex pandas.DataFrame is expected like Close/AAPL')
     elif priority_column == None:

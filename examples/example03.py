@@ -1,6 +1,6 @@
 import datetime
 import matplotlib.pyplot as plt
-from pfo.stocks import ratios
+from pfo.stocks.ratios import ratios
 from pfo.portfolio import portfolio
 import pandas as pd
 

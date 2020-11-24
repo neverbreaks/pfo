@@ -7,9 +7,6 @@ from pfo.market_data import clean_data
 
 class portfolio(object):
     """Object that contains information about a investment portfolio.
-    To initialise the object, it does not require any input.
-    To commence the analysis the portfolio must be initiated
-    with ''build'' function.
     """
 
     def __init__(self, data: pd.DataFrame, risk_free_rate=0.0425, freq=252, num_portfolios=10000):
@@ -26,7 +23,7 @@ class portfolio(object):
             self._risk_free_rate = risk_free_rate
 
         if not isinstance(data, pd.DataFrame):
-            raise ValueError('Data should be a pandas.DataFrame')
+            raise ValueError('data should be a pandas.DataFrame')
 
         if isinstance(data.columns, pd.MultiIndex):
             self._data = clean_data(data)

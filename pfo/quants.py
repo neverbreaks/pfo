@@ -1,7 +1,20 @@
 import numpy as np
 import pandas as pd
 
-from pfo.stocks import mean_returns, downside_volatility, cov_matrix
+from pfo.stocks import mean_returns, downside_volatility
+from pfo.stocks.valuations import cov_matrix
+
+
+def random_weights(num_assets: int):
+    Y = np.random.exponential(scale=1.0, size=num_assets)
+    Tk = Y.sum()
+    E_list = []
+    for i in range(num_assets):
+        Ei = Y[i]/Tk
+        E_list.append(Ei)
+
+    return np.array(E_list)
+
 
 
 def mc_random_portfolios(data: pd.DataFrame, risk_free_rate=0.01, num_portfolios=10000, freq=252):
@@ -19,8 +32,11 @@ def mc_random_portfolios(data: pd.DataFrame, risk_free_rate=0.01, num_portfolios
     num_assets = len(data.columns)
 
     for portfolio in range(num_portfolios):
-        weights = np.random.random(num_assets)
-        weights = weights / np.sum(weights)
+        # weights = np.random.random(num_assets)
+        # weights = weights / np.sum(weights)
+
+        weights = random_weights(num_assets)
+
         pf_weights.append(weights)
         # Returns are the product of individual expected returns of asset and its weights
         returns = pf_mean_returns(weights, stocks_returns)

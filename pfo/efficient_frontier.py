@@ -1,6 +1,7 @@
 import pandas as pd
 import numpy as np
-from pfo.stocks import mean_returns, cov_matrix
+from pfo.stocks import mean_returns
+from pfo.stocks.valuations import cov_matrix
 from pfo.quants import pf_valuation, pf_volatility
 from pfo.market_data import clean_data
 import scipy.optimize as sco
@@ -30,7 +31,7 @@ class efficient_frontier(object):
             self._risk_free_rate = risk_free_rate
 
         if not isinstance(data, pd.DataFrame):
-            raise ValueError('Data should be a pandas.DataFrame')
+            raise ValueError('data should be a pandas.DataFrame')
 
         if isinstance(data.columns, pd.MultiIndex):
             self._data = clean_data(data)
