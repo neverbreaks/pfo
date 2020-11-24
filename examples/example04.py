@@ -1,6 +1,6 @@
 import datetime
 import matplotlib.pyplot as plt
-from pfo.stocks import mean_returns
+from pfo.stocks.valuations import mean_returns
 from pfo.stocks.ratios import ratios
 from pfo.quants import pf_mean_returns
 from pfo.portfolio import portfolio

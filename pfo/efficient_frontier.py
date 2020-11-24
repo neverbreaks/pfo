@@ -1,6 +1,5 @@
 import pandas as pd
 import numpy as np
-from pfo.stocks import mean_returns
 from pfo.stocks.valuations import cov_matrix
 from pfo.quants import pf_valuation, pf_volatility
 from pfo.market_data import clean_data

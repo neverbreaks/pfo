@@ -1,8 +1,6 @@
 import numpy as np
 import pandas as pd
-
-from pfo.stocks import mean_returns, downside_volatility
-from pfo.stocks.valuations import cov_matrix
+from pfo.stocks.valuations import cov_matrix, mean_returns, downside_volatility
 
 
 def random_weights(num_assets: int):
