@@ -38,7 +38,6 @@ class portfolio(object):
         self._df_results = None
         self._num_portfolios = num_portfolios
 
-
         self._calc()
 
     @property

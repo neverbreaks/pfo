@@ -1,10 +1,11 @@
 import numpy as np
 import pandas as pd
+from tqdm import tqdm
 from pfo.stocks.valuations import cov_matrix, mean_returns, downside_volatility
 
 
-def random_weights(num_assets: int):
-    Y = np.random.exponential(scale=1.0, size=num_assets)
+def random_weights_exp(num_assets: int):
+    Y = np.random.exponential(scale=1, size=num_assets)
     Tk = Y.sum()
     E_list = []
     for i in range(num_assets):
@@ -14,8 +15,27 @@ def random_weights(num_assets: int):
     return np.array(E_list)
 
 
+def random_weights_norm(num_assets: int):
+    #U = np.random.uniform(0, 1, num_assets-1)
+    U = np.random.random_sample(num_assets-1)
+    U = np.insert(U, 0, 0.0, axis=0)
+    U = np.insert(U, len(U), 1.0, axis=0)
+    U.sort()
+
+    V_list = []
+    vi_1 = 0
+    for i in range(len(U)):
+        if i > 0:
+           vi = U[i]-vi_1
+           V_list.append(vi)
+           vi_1 = U[i]
+
+    return np.array(V_list)
+
 
 def mc_random_portfolios(data: pd.DataFrame, risk_free_rate=0.01, num_portfolios=10000, freq=252):
+    pbar = tqdm(total=num_portfolios)
+
     pf_ret = []  # Define an empty array for portfolio returns
     pf_vol = []  # Define an empty array for portfolio volatility
     pf_down_vol = []  # Define an empty array for portfolio downside volatility
@@ -29,11 +49,11 @@ def mc_random_portfolios(data: pd.DataFrame, risk_free_rate=0.01, num_portfolios
 
     num_assets = len(data.columns)
 
-    for portfolio in range(num_portfolios):
-        # weights = np.random.random(num_assets)
-        # weights = weights / np.sum(weights)
+    for idx, portfolio in enumerate(range(num_portfolios)):
+       # weights = np.random.random(num_assets)
+        #weights = weights / np.sum(weights)
 
-        weights = random_weights(num_assets)
+        weights = random_weights_norm(num_assets)
 
         pf_weights.append(weights)
         # Returns are the product of individual expected returns of asset and its weights
@@ -52,6 +72,11 @@ def mc_random_portfolios(data: pd.DataFrame, risk_free_rate=0.01, num_portfolios
 
         sor_ratio = (returns - risk_free_rate) / pf_stocks_yearly_downside_vol
         pf_sortino_ratio.append(sor_ratio)
+
+        if idx % 1000 == 0:
+           pbar.update(1000)
+
+    pbar.close()
 
     df_rv = {'Returns': pf_ret, 'Volatility': pf_vol, 'Down. Volatility': pf_down_vol, 'Sharp Ratio': pf_sharp_ratio,
              'Sortino Ratio': pf_sortino_ratio}

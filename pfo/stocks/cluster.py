@@ -3,6 +3,7 @@ import pandas as pd
 from matplotlib import pylab as plt
 from scipy.cluster.vq import vq
 from sklearn.cluster import KMeans
+from pfo.market_data import clean_data
 
 from pfo.stocks.valuations import mean_returns, daily_log_returns, volatility
 
@@ -36,6 +37,9 @@ def cluster_stocks(data: pd.DataFrame, n_clusters=5, verbose=False):
     elif n_clusters > len(data.columns):
         raise ValueError(f'Total number of clusters({n_clusters}) '
                          f'must be <= number of stocks({len(data.columns)}) in portfolio')
+
+    if isinstance(data.columns, pd.MultiIndex):
+        data = clean_data(data)
 
     pf_return_means = mean_returns(data, type='log')
     pf_daily_returns = daily_log_returns(data)
