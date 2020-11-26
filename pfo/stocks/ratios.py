@@ -1,6 +1,6 @@
 import pandas as pd
 
-from pfo.stocks.valuations import mean_returns, volatility, downside_volatility
+from pfo.stocks.returns import mean_returns, volatility, downside_volatility
 
 
 def ratios(data: pd.DataFrame, risk_free_rate=0.001, verbouse = False):

@@ -1,11 +1,9 @@
 import datetime
 import matplotlib.pyplot as plt
-from pfo.stocks.valuations import mean_returns
+from pfo.stocks.returns import mean_returns
 from pfo.stocks.ratios import ratios
-from pfo.quants import pf_mean_returns
 from pfo.portfolio import portfolio
 import pandas as pd
-import numpy as np
 
 pd.set_option('display.max_rows', None)
 pd.set_option('display.max_columns', None)

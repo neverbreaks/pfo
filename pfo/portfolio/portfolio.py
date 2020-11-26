@@ -1,7 +1,7 @@
 import matplotlib.pyplot as plt
 import pandas as pd
 
-from pfo.quants import mc_random_portfolios
+from pfo.portfolio.mc import mc_random_portfolios
 from pfo.market_data import clean_data
 
 
@@ -9,7 +9,7 @@ class portfolio(object):
     """Object that contains information about a investment portfolio.
     """
 
-    def __init__(self, data: pd.DataFrame, risk_free_rate=0.0425, freq=252, num_portfolios=10000):
+    def __init__(self, data: pd.DataFrame, risk_free_rate=0.0425, freq=252):
         if not isinstance(freq, int):
             raise ValueError('Frequency must be an integer')
         elif freq <= 0:
@@ -36,9 +36,7 @@ class portfolio(object):
         self._max_sharpe_port = None
         self._max_sortino_port = None
         self._df_results = None
-        self._num_portfolios = num_portfolios
 
-        self._calc()
 
     @property
     def min_vol_port(self):
@@ -60,27 +58,6 @@ class portfolio(object):
     def data(self):
         return self._data
 
-    def _ef(self):
-        pass
-
-    def _calc(self):
-        self._portfolios = mc_random_portfolios(data=self._data, risk_free_rate=self._risk_free_rate, \
-                                                num_portfolios=self._num_portfolios, freq=self._freq)
-
-        self._min_vol_port = self._portfolios.iloc[self._portfolios['Volatility'].idxmin()]
-        self._min_downside_vol_port = self._portfolios.iloc[self._portfolios['Down. Volatility'].idxmin()]
-        self._max_sharpe_port = self._portfolios.iloc[self._portfolios['Sharp Ratio'].idxmax()]
-        self._max_sortino_port = self._portfolios.iloc[self._portfolios['Sortino Ratio'].idxmax()]
-        self._min_vol_port.rename_axis('Min Volatiity')
-        self._min_downside_vol_port.rename_axis('Down. Volatility')
-        self._max_sharpe_port.rename_axis('Max Sharpe Ratio')
-        self._max_sortino_port.rename_axis('Max Sortino Ratio')
-
-        self._df_results = pd.concat(
-            [self._min_vol_port, self._min_downside_vol_port, self._max_sharpe_port, self._max_sortino_port],
-            keys=['Min Volatiity', 'Down. Volatility', 'Max Sharpe Ratio', 'Max Sortino Ratio'], join='inner', axis=1)
-
-        self._ef()
 
     ###############################################################################
     #                                     PLOT                                   #
@@ -109,3 +86,25 @@ class portfolio(object):
 
     def store_to_xls(self):
        pass
+
+
+    ###############################################################################
+    #                                     SIMULATION                              #
+    ###############################################################################
+    def mc(self, num_portfolios=10000):
+        self._portfolios = mc_random_portfolios(data=self._data, risk_free_rate=self._risk_free_rate, \
+                                                num_portfolios=num_portfolios, freq=self._freq)
+
+        self._min_vol_port = self._portfolios.iloc[self._portfolios['Volatility'].idxmin()]
+        self._min_downside_vol_port = self._portfolios.iloc[self._portfolios['Down. Volatility'].idxmin()]
+        self._max_sharpe_port = self._portfolios.iloc[self._portfolios['Sharp Ratio'].idxmax()]
+        self._max_sortino_port = self._portfolios.iloc[self._portfolios['Sortino Ratio'].idxmax()]
+        self._min_vol_port.rename_axis('Min Volatiity')
+        self._min_downside_vol_port.rename_axis('Down. Volatility')
+        self._max_sharpe_port.rename_axis('Max Sharpe Ratio')
+        self._max_sortino_port.rename_axis('Max Sortino Ratio')
+
+        self._df_results = pd.concat(
+            [self._min_vol_port, self._min_downside_vol_port, self._max_sharpe_port, self._max_sortino_port],
+            keys=['Min Volatiity', 'Down. Volatility', 'Max Sharpe Ratio', 'Max Sortino Ratio'], join='inner', axis=1)
+

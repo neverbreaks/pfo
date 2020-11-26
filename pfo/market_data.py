@@ -10,6 +10,7 @@ import requests
 from pathlib import Path, WindowsPath
 from enum import Enum
 import datetime
+from tqdm import tqdm
 _price_col_names = ['WAPRICE', 'Adj. Close', 'Adj Close', 'CLOSE', 'close', 'Close']
 
 
@@ -108,7 +109,7 @@ def _download_yfinance(tickers : list, start_date: datetime, end_date: datetime)
     return data
 
 
-def _download_moex(tickers : list, start_date : datetime, end_date:datetime, boards: list) -> pd.DataFrame:
+def _download_moex(tickers : list, start_date: datetime, end_date: datetime, boards: list) -> pd.DataFrame:
     data = pd.DataFrame()
     arguments = {'securities.columns': ('SECID,'
                                         'REGNUMBER,'
@@ -120,9 +121,6 @@ def _download_moex(tickers : list, start_date : datetime, end_date:datetime, boa
         request_url = ('https://iss.moex.com/iss/engines/stock/'
                        f'markets/{shares}/boards/{brd}/securities.json')
 
-        print("-" * 80)
-        print(f'Loading {board}:')
-
         with requests.Session() as session:
             iss = apimoex.ISSClient(session, request_url, arguments)
             iis_data = iss.get()
@@ -131,21 +129,26 @@ def _download_moex(tickers : list, start_date : datetime, end_date:datetime, boa
 
             columns = ['TRADEDATE', 'WAPRICE', 'CLOSE']
             stocks_prices = []
+            if len(tickers) == 0:
+               tickers = board_df.index.tolist()
+
+            pbar = tqdm(total=len(board_df.index))
             for stock in board_df.index:
                 if stock in tickers:
                     stock_data = apimoex.get_board_history(session=session, security=stock, start=start_date, \
                                                            end=end_date, columns=columns, market=shares, board=brd)
-
                     stock_df = pd.DataFrame(stock_data)
                     stock_df['TRADEDATE'] = pd.to_datetime(stock_df['TRADEDATE'])
                     stock_df.set_index('TRADEDATE', inplace=True)
                     stock_df = pd.concat([stock_df], axis=1, keys=[stock]).swaplevel(0, 1, 1)
                     stocks_prices.append(stock_df)
 
-            if len(stocks_prices) > 0:
-                data = pd.concat(stocks_prices, join='inner', axis=1)
+                pbar.update(1)
 
-    return data
+            if len(stocks_prices) > 0:
+                data = pd.concat(stocks_prices, join='outer', axis=1)
+
+    return data[start_date:end_date]
 
 
 def download(source: Source, **kwargs) -> pd.DataFrame:

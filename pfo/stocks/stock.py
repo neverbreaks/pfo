@@ -1,10 +1,8 @@
-from typing import Any, Union
-
 import pandas as pd
 from matplotlib import pylab as plt
 from pfo.market_data import clean_data
-from pfo.stocks.valuations import mean_returns, volatility, downside_volatility, daily_log_returns
-
+from pfo.stocks.returns import mean_returns, volatility, downside_volatility, daily_log_returns
+import numpy as np
 
 class stock(object):
     """Object that contains information about a stock.
@@ -17,9 +15,9 @@ class stock(object):
             raise ValueError('data should be a pandas.DataFrame')
 
         if isinstance(data.columns, pd.MultiIndex):
-            self._data = clean_data(data)
+            self._data = clean_data(data).dropna(how="all")
         else:
-            self._data = data
+            self._data = data.dropna(how="all")
 
         if not (ticker in self._data.columns):
             raise ValueError(f'Ticker {ticker} is not provided in DataFrame')
@@ -89,8 +87,26 @@ class stock(object):
         plt.figure(figsize=(16, 10))
         #ax = fig.add_subplot(111, projection='polar')
 
-        plt.plot(self._data[self._ticker], 'black', linewidth=1)
+        plt.plot(self._data[self._ticker], 'black', linewidth=0.5)
         plt.title(f'{self._ticker}')
         plt.ylabel("Price")
         plt.xticks(rotation=30)
         plt.grid(True)
+
+        self._data['SMA5'] = self._data[self._ticker].rolling(20).mean()
+        self._data['SMA20'] = self._data[self._ticker].rolling(60).mean()
+
+        plt.plot(self._data['SMA5'],linewidth=1.0,color='red')
+        plt.plot(self._data['SMA20'],linewidth=1.0,color='c')
+
+        #Identifying the buy/sell zone
+        self._data['Buy'] = np.where( (self._data['SMA5']> self._data['SMA20']), 1, 0)
+        self._data['Sell'] = np.where( (self._data['SMA5']< self._data['SMA20']), 1, 0)
+
+        ##identify buy sell signal
+        self._data['Buy_ind'] = np.where( (self._data['Buy'] > self._data['Buy'].shift(1)),1,0)
+        self._data['Sell_ind'] = np.where( (self._data['Sell'] > self._data['Sell'].shift(1)),1,0)
+        # print(df.dtypes)
+        # print(df.head(20))
+
+        ## plotting the buy and sellsignals on graph

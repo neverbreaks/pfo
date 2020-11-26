@@ -1,27 +1,38 @@
 import datetime
 import matplotlib.pyplot as plt
-from pfo.portfolio import portfolio
+import pandas as pd
+from pathlib import Path
+import numpy as np
+from pfo.portfolio.portfolio import portfolio
+from pfo.portfolio.efficient_frontier import efficient_frontier
+from pfo.portfolio.valuations import pf_valuation
 
+pd.set_option('display.max_rows', None)
+pd.set_option('display.max_columns', None)
+pd.set_option('display.width', None)
+pd.set_option('display.max_colwidth', None)
+pd.set_option('display.width', 150)
 
-from pfo.market_data import download, Source, clean_data
+start_date = datetime.datetime(2018, 11, 20)
+end_date = datetime.datetime(2020, 11, 20)
+path = (Path.cwd() /'..' / "cache" / "moex.csv").resolve()
+data = pd.read_csv(path, index_col = 0,  parse_dates=['TRADEDATE'])
 
-start_date = datetime.datetime(2017, 11, 20)
-end_date = '2020-11-20'
+pf1_data = pd.DataFrame(data, columns=['AFKS', 'APTK', 'LNZL', 'MAGEP', 'MRKS', 'PLZL', 'ROLO', 'SELG'])
 
-tickers_pf1 = ['AAPL', 'ADBE', 'AMZN', 'MA', 'MSFT', 'NFLX', 'NKE', 'NVDA', 'PYPL', 'QCOM', 'TWTR']
-tickers_pf2 = ['AVGO', 'BABA', 'DIS', 'FB', 'GOOG', 'GOOGL', 'MCD', 'NEM', 'SBUX', 'V', 'WMT']
-
-data_pf1 = download(source=Source.YFINANCE, tickers = tickers_pf1, start_date=start_date, end_date=end_date)
-data_pf1 = clean_data(data_pf1)
-pf1 = portfolio(data=data_pf1, risk_free_rate=0.001, freq=252, num_portfolios=10000)
+pf1 = portfolio(data=pf1_data, risk_free_rate=0.01, freq=252)
+pf1.mc(1000000)
 pf1.plot_portfolios()
-plt.show()
 pf1.print_results()
+#
+ef1 = efficient_frontier(data=pf1_data)
+msr1 = ef1.max_sharpe_ratio()
+mv1 = ef1.min_volatility()
+#
+res1 = pf_valuation(msr1['x'], data=pf1_data)
+print(res1)
+print(np.round(msr1['x'],decimals = 4))
 
+ef1.efficient_portfolios()
 
-data_pf2 = download(source=Source.YFINANCE, tickers = tickers_pf2, start_date=start_date, end_date=end_date)
-data_pf2 = clean_data(data_pf2)
-pf2 = portfolio(data=data_pf2, risk_free_rate=0.001, freq=252, num_portfolios=10000)
-pf2.plot_portfolios()
 plt.show()
-pf2.print_results()

@@ -1,7 +1,7 @@
 import pandas as pd
 import numpy as np
-from pfo.stocks.valuations import cov_matrix
-from pfo.quants import pf_valuation, pf_volatility
+from pfo.stocks.returns import cov_matrix
+from pfo.portfolio.valuations import pf_valuation, pf_volatility
 from pfo.market_data import clean_data
 import scipy.optimize as sco
 import matplotlib.pyplot as plt
@@ -117,4 +117,9 @@ class efficient_frontier(object):
 
     def _neg_sharp_ratio(self, weights, data, risk_free_rate, freq=252):
         sharp = pf_valuation(weights=weights, data=data, risk_free_rate=risk_free_rate, freq=freq).get('Sharp')
+        return -sharp
+
+
+    def _neg_sortino_ratio(self, weights, data, risk_free_rate, freq=252):
+        sharp = pf_valuation(weights=weights, data=data, risk_free_rate=risk_free_rate, freq=freq).get('Sortino')
         return -sharp

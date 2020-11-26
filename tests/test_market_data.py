@@ -27,6 +27,7 @@ tickers_pass_moex = [
     ['SBER', 'GAZP', 'MTSS'],
     ['SBER', 'GAZP', 'MTSS', 'UNKN'],
     ['SBER'],
+    [],
 ]
 
 tickers_warn_csv = [
@@ -56,6 +57,7 @@ d_pass_moex = [
     {'source': Source.MOEX, 'tickers': tickers_pass_moex[0], 'start_date': start_date, 'end_date': end_date},
     {'source': Source.MOEX, 'tickers': tickers_pass_moex[1], 'start_date': start_date, 'end_date': end_date},
     {'source': Source.MOEX, 'tickers': tickers_pass_moex[2]},
+    {'source': Source.MOEX, 'tickers': tickers_pass_moex[3]},
 ]
 
 
@@ -130,6 +132,12 @@ def test_download_moex_pass_1():
 
 def test_download_moex_pass_2():
     d = d_pass_moex[2]
+    data = download(**d)
+    print(data.head())
+    isinstance(data, pd.DataFrame)
+
+def test_download_moex_pass_3():
+    d = d_pass_moex[3]
     data = download(**d)
     print(data.head())
     isinstance(data, pd.DataFrame)

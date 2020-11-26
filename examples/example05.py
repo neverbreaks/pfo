@@ -2,10 +2,9 @@ import datetime
 import matplotlib.pyplot as plt
 from pfo.stocks import mean_returns
 from pfo.stocks.ratios import ratios
-from pfo.quants import pf_mean_returns, pf_valuation
+from pfo.portfolio.valuations import pf_valuation
 from pfo.portfolio import portfolio
 import pandas as pd
-import numpy as np
 from pfo.market_data import download, Source, clean_data
 
 

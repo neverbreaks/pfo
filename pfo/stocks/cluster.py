@@ -5,7 +5,7 @@ from scipy.cluster.vq import vq
 from sklearn.cluster import KMeans
 from pfo.market_data import clean_data
 
-from pfo.stocks.valuations import mean_returns, daily_log_returns, volatility
+from pfo.stocks.returns import mean_returns, daily_log_returns, volatility
 
 
 def cluster_stocks(data: pd.DataFrame, n_clusters=5, verbose=False):
