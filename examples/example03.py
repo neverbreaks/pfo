@@ -3,6 +3,7 @@ import matplotlib.pyplot as plt
 from pfo.stocks.ratios import ratios
 from pfo.portfolio.portfolio import portfolio
 import pandas as pd
+import numpy as np
 
 from pfo.market_data import download, Source, clean_data
 
@@ -22,10 +23,17 @@ data = download(source=Source.YFINANCE, tickers = tickers, start_date=start_date
 data = clean_data(data)
 pf = portfolio(data=data, risk_free_rate=0.001, freq=252)
 
+msr = pf.max_sharpe_ratio()
+pf1 = portfolio(data=data, weights=msr['x'], risk_free_rate=0.001, freq=252)
+msr1 = pf1.max_sharpe_ratio()
+print(np.round(msr['x'],decimals = 4))
+print(np.round(msr1['x'],decimals = 4))
+
 #print(pf.sharp)
 #print(pf.sortino)
 
-pf.print_pf_result()
+#pf.print_pf_result()
+#pf1.print_pf_result()
 
 plt.show()
 
