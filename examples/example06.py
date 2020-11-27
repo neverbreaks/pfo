@@ -4,7 +4,7 @@ import pandas as pd
 from pathlib import Path
 import numpy as np
 from pfo.market_data import download, Source, clean_data
-from pfo.portfolio.portfolio import portfolio
+from pfo.portfolio.portfolio import Portfolio
 from pfo.portfolio.valuations import pf_valuation
 
 pd.set_option('display.max_rows', None)
@@ -43,7 +43,7 @@ data = clean_data(data)
 #data.to_csv(path)
 #
 #
-pf = portfolio(data=data, risk_free_rate=0.01, freq=252)
+pf = Portfolio(data=data, risk_free_rate=0.01, freq=252)
 pf.mc_simulation()
 pf.plot_mc_simulation()
 pf.print_mc_results()

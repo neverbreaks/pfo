@@ -1,14 +1,15 @@
 import matplotlib.pyplot as plt
+import numpy as np
 import pandas as pd
 import scipy.optimize as sco
-import numpy as np
-from pfo.portfolio.mc import mc_random_portfolios
+
 from pfo.market_data import clean_data
+from pfo.portfolio.mc import mc_random_portfolios
 from pfo.portfolio.valuations import pf_volatility, pf_mean_returns, pf_negative_volatility
 from pfo.stocks.returns import cov_matrix, mean_returns, negative_volatility
 
 
-class portfolio(object):
+class Portfolio(object):
     """Object that contains information about a investment portfolio.
     """
 
@@ -127,10 +128,17 @@ class portfolio(object):
     def print_pf_result(self):
         print('\n')
         print('=' * 80)
-        print(self._df_perfomamce)
+        #print(self._df_perfomamce)
+        print(pd.Series(self._df_perfomamce, index=self._df_perfomamce.keys()))
         print('=' * 80)
+
+        out = {}
         for counter, ticker in enumerate(self._data.columns, start=0):
-            print(f'{ticker} - {self._weights[counter]}')
+            w = np.round(self._weights[counter],4)
+            if w > 0:
+               out[ticker] = w
+
+        print(pd.Series(out, index=out.keys()))
 
     ###############################################################################
     #                                     SIMULATION                              #
@@ -207,24 +215,15 @@ class portfolio(object):
         max_sharpe = self.max_sharpe_ratio()
         min_vol = self.min_volatility()
 
-        res_max = pf_valuation(weights=max_sharpe['x'], data=self._data,
-                               risk_free_rate=self._risk_free_rate, freq=self._freq)
+        returns_max_sharpe = pf_mean_returns(weights=max_sharpe['x'], yearly_returns=self._mr)
+        returns_min_vol = pf_mean_returns(weights=min_vol['x'], yearly_returns=self._mr)
 
-        returns_max = res_max.get('Returns')
-        volatility_max = res_max.get('Volatility')
-
-        res_min = pf_valuation(weights=min_vol['x'], data=self._data,
-                               risk_free_rate=self._risk_free_rate, freq=self._freq)
-
-        returns_min = res_min.get('Returns')
-        volatility_min = res_min.get('Volatility')
-
-        target = np.linspace(returns_min, returns_max, 50)
+        target = np.linspace(returns_min_vol, returns_max_sharpe, 50)
         self._efficient_portfolios = self.efficient_frontier(returns_range=target)
 
         if plot:
             plt.plot([p['fun'] for p in self._efficient_portfolios], target, 'k-x',
-                     label='efficient frontier', color='g')
+                     label='efficient frontier', color='g', alpha=0.3)
 
         return self._efficient_portfolios
 

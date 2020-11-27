@@ -3,7 +3,7 @@ import matplotlib.pyplot as plt
 import pandas as pd
 from pathlib import Path
 import numpy as np
-from pfo.portfolio.portfolio import portfolio
+from pfo.portfolio.portfolio import Portfolio
 
 
 pd.set_option('display.max_rows', None)
@@ -19,7 +19,7 @@ data = pd.read_csv(path, index_col = 0,  parse_dates=['TRADEDATE'])
 
 pf1_data = pd.DataFrame(data, columns=['AFKS', 'APTK', 'LNZL', 'MAGEP', 'MRKS', 'PLZL', 'ROLO', 'SELG'])
 
-pf1 = portfolio(data=pf1_data, risk_free_rate=0.01, freq=252)
+pf1 = Portfolio(data=pf1_data, risk_free_rate=0.01, freq=252)
 pf1.mc_simulation(1000000)
 pf1.plot_mc_simulation()
 pf1.print_mc_results()
