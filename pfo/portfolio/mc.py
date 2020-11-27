@@ -3,7 +3,7 @@ import pandas as pd
 from tqdm import tqdm
 
 from pfo.portfolio.valuations import pf_mean_returns, pf_volatility, pf_negative_volatility
-from pfo.stocks.returns import cov_matrix, mean_returns, downside_volatility
+from pfo.stocks.returns import cov_matrix, mean_returns, negative_volatility
 
 
 def random_weights_exp(num_assets: int):
@@ -65,7 +65,7 @@ def mc_random_portfolios(data: pd.DataFrame, risk_free_rate=0.01, num_portfolios
 
     cvm = cov_matrix(data)
     stocks_returns = mean_returns(data, freq=freq, type='log')
-    stocks_negative_volatility = downside_volatility(data)
+    stocks_negative_volatility = negative_volatility(data)
 
     num_assets = len(data.columns)
 

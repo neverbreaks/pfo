@@ -2,12 +2,8 @@ import datetime
 import matplotlib.pyplot as plt
 import pandas as pd
 from pathlib import Path
-import numpy as np
 from pfo.stocks.cluster import cluster_stocks
 from pfo.stocks.stock import stock
-from pfo.portfolio.portfolio import portfolio
-from pfo.portfolio.efficient_frontier import efficient_frontier
-from pfo.portfolio.valuations import pf_valuation
 
 
 start_date = datetime.datetime(2019, 11, 20)

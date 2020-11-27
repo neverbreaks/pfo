@@ -5,7 +5,6 @@ from pathlib import Path
 import numpy as np
 from pfo.market_data import download, Source, clean_data
 from pfo.portfolio.portfolio import portfolio
-from pfo.portfolio.efficient_frontier import sharp_efficient_frontier
 from pfo.portfolio.valuations import pf_valuation
 
 pd.set_option('display.max_rows', None)
@@ -45,18 +44,7 @@ data = clean_data(data)
 #
 #
 pf = portfolio(data=data, risk_free_rate=0.01, freq=252)
-pf.mc()
-pf.plot_portfolios()
-pf.print_results()
-#
-ef = sharp_efficient_frontier(data=data)
-msr = ef.max_sharpe_ratio()
-mv = ef.min_volatility()
-#
-res = pf_valuation(msr['x'], data=data)
-print(res)
-print(np.round(msr['x'],decimals = 4))
-
-ef.efficient_portfolios()
-
+pf.mc_simulation()
+pf.plot_mc_simulation()
+pf.print_mc_results()
 plt.show()

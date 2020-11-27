@@ -1,7 +1,7 @@
 import pandas as pd
 from matplotlib import pylab as plt
 from pfo.market_data import clean_data
-from pfo.stocks.returns import mean_returns, volatility, downside_volatility, daily_log_returns
+from pfo.stocks.returns import mean_returns, volatility, negative_volatility, daily_log_returns
 import numpy as np
 
 class stock(object):
@@ -34,7 +34,7 @@ class stock(object):
         ##########PROPERTIES##########
         self._returns = mean_returns(self._data, freq=self._freq, type=self._type).values[0]
         self._volatility = volatility(self._data).values[0]
-        self._downside_volatility = downside_volatility(self._data).values[0]
+        self._downside_volatility = negative_volatility(self._data).values[0]
         self._sharp = (self._returns - self._risk_free_rate)/self._volatility
         self._sortino = (self.returns - self._risk_free_rate)/self._downside_volatility
         self._skew = self._data.skew().values[0]

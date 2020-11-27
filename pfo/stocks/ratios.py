@@ -1,12 +1,12 @@
 import pandas as pd
 
-from pfo.stocks.returns import mean_returns, volatility, downside_volatility
+from pfo.stocks.returns import mean_returns, volatility, negative_volatility
 
 
 def ratios(data: pd.DataFrame, risk_free_rate=0.001, verbouse = False):
     yearly = mean_returns(data, type='log')
     vol = volatility(data)
-    downside_vol =  downside_volatility(data)
+    downside_vol =  negative_volatility(data)
 
     df_results = pd.concat(
         [yearly, vol, downside_vol],

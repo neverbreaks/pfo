@@ -61,8 +61,8 @@ def test_portfolio_csv_pass_0():
     data = download(**d)
     data = clean_data(data)
     pf = portfolio(data = data, num_portfolios=10000)
-    pf.plot_portfolios()
-    pf.print_results()
+    pf.plot_mc_simulation()
+    pf.print_mc_results()
 
 ###############################################################################
 #                                      MOEX                                   #
@@ -72,8 +72,8 @@ def test_portfolio_moex_pass_0():
     data = download(**d)
     data = clean_data(data)
     pf = portfolio(data = data)
-    pf.plot_portfolios()
-    pf.print_results()
+    pf.plot_mc_simulation()
+    pf.print_mc_results()
 
 
 def test_portfolio_yfinance_pass_0():
@@ -81,13 +81,13 @@ def test_portfolio_yfinance_pass_0():
     data = download(**d)
     data = clean_data(data)
     pf = portfolio(data=data, risk_free_rate=0.001, freq=252, num_portfolios=10000)
-    pf.plot_portfolios()
-    pf.print_results()
+    pf.plot_mc_simulation()
+    pf.print_mc_results()
 
 def test_portfolio_yfinance_pass_1():
     d = d_pass_yfinance[0]
     data = download(**d)
     data = clean_data(data)
     pf = portfolio(data=data, risk_free_rate=0.001, freq=252, num_portfolios=10000)
-    pf.plot_portfolios()
-    pf.print_results()
+    pf.plot_mc_simulation()
+    pf.print_mc_results()

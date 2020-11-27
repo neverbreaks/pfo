@@ -1,7 +1,7 @@
 import datetime
 import matplotlib.pyplot as plt
 from pfo.stocks.ratios import ratios
-from pfo.portfolio import portfolio
+from pfo.portfolio.portfolio import portfolio
 import pandas as pd
 
 from pfo.market_data import download, Source, clean_data
@@ -20,30 +20,12 @@ tickers = ['CSCO', 'V', 'ABBV', 'SBUX', 'MCD', 'INTC', \
 
 data = download(source=Source.YFINANCE, tickers = tickers, start_date=start_date, end_date=end_date)
 data = clean_data(data)
-df_ratios = ratios(data=data)
-df_sharp = df_ratios[df_ratios['Sharp Ratio'] > 1.0]
-df_sortino = df_ratios[df_ratios['Sortino Ratio'] > 1.0]
+pf = portfolio(data=data, risk_free_rate=0.001, freq=252)
 
-with pd.option_context('display.max_rows', None, 'display.max_columns', None):
-    print(df_sharp)
-    print(df_sortino)
+#print(pf.sharp)
+#print(pf.sortino)
 
-pf_stocks_sortino = df_sortino.index.to_list()
-pf_stocks_sharp = df_sortino.index.to_list()
-
-sortino_data = download(source=Source.YFINANCE, tickers = pf_stocks_sortino, start_date=start_date, end_date=end_date)
-sortino_data = clean_data(sortino_data)
-pf_sortino = portfolio(data=sortino_data, risk_free_rate=0.001, freq=252, num_portfolios=10000)
-pf_sortino.plot_portfolios()
-
-pf_sortino.print_results()
-
-sharp_data = download(source=Source.YFINANCE, tickers = pf_stocks_sharp, start_date=start_date, end_date=end_date)
-sharp_data = clean_data(sharp_data)
-pf_sharp = portfolio(data=sharp_data, risk_free_rate=0.001, freq=252, num_portfolios=10000)
-pf_sharp.plot_portfolios()
-plt.show()
-pf_sharp.print_results()
+pf.print_pf_result()
 
 plt.show()
 

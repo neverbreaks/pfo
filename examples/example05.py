@@ -46,8 +46,8 @@ print('Sortino portfolio 14-17')
 sortino_data14_17 = download(source=Source.YFINANCE, tickers = pf_stocks_sortino, start_date=start_date14_17, end_date=end_date14_17)
 sortino_data14_17 = clean_data(sortino_data14_17)
 pf_sortino14_17 = portfolio(data=sortino_data14_17, risk_free_rate=0.001, freq=252, num_portfolios=10000)
-pf_sortino14_17.plot_portfolios()
-pf_sortino14_17.print_results()
+pf_sortino14_17.plot_mc_simulation()
+pf_sortino14_17.print_mc_results()
 pf_proposed_sortino14_17 = pf_sortino14_17.max_sortino_port
 
 

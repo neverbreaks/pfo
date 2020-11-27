@@ -1,13 +1,6 @@
 import numpy as np
 import pandas as pd
 
-
-def downside_log_return(data: pd.DataFrame):
-    neg_log_return = daily_log_returns(data)
-    neg_log_return[neg_log_return > 0] = 0
-    return neg_log_return
-
-
 def mean_returns(data: pd.DataFrame, freq=252, type='log') -> pd.DataFrame:
 
     if type == 'pct':
@@ -52,12 +45,18 @@ def daily_log_returns(data: pd.DataFrame) -> pd.DataFrame:
     """
     return np.log(1.0 + daily_returns(data)).dropna(how="all")
 
+def negative_log_return(data: pd.DataFrame):
+    neg_log_return = daily_log_returns(data)
+    neg_log_return[neg_log_return > 0] = 0
+    return neg_log_return
+
+
 
 def volatility(data: pd.DataFrame, freq=252) -> pd.Series:
     return daily_log_returns(data).std().apply(lambda x: x * np.sqrt(freq)) \
         .dropna(how="all").replace([np.inf, -np.inf], np.nan)
 
 
-def downside_volatility(data: pd.DataFrame, freq=252) -> pd.Series:
-    return downside_log_return(data).std().apply(lambda x: x * np.sqrt(freq)) \
+def negative_volatility(data: pd.DataFrame, freq=252) -> pd.Series:
+    return negative_log_return(data).std().apply(lambda x: x * np.sqrt(freq)) \
         .dropna(how="all").replace([np.inf, -np.inf], np.nan)
