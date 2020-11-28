@@ -50,10 +50,12 @@ def random_weights(num_assets):
             V_list.append(vi)
             vi_1 = U[i]
 
-    return np.array(V_list)/basis
+    return np.array(V_list) / basis
 
 
-def mc_random_portfolios(data: pd.DataFrame, risk_free_rate=0.01, num_portfolios=10000, freq=252):
+def mc_random_portfolios(
+    data: pd.DataFrame, risk_free_rate=0.01, num_portfolios=10000, freq=252
+):
     pbar = tqdm(total=num_portfolios)
 
     pf_ret = []  # Define an empty array for pf returns
@@ -64,7 +66,7 @@ def mc_random_portfolios(data: pd.DataFrame, risk_free_rate=0.01, num_portfolios
     pf_sortino_ratio = []  # Define an empty array for Sortino ratio
 
     cvm = cov_matrix(data)
-    stocks_returns = mean_returns(data, freq=freq, type='log')
+    stocks_returns = mean_returns(data, freq=freq, type="log")
     stocks_negative_volatility = negative_volatility(data)
 
     num_assets = len(data.columns)
@@ -81,14 +83,17 @@ def mc_random_portfolios(data: pd.DataFrame, risk_free_rate=0.01, num_portfolios
         returns = pf_mean_returns(weights, stocks_returns)
         pf_ret.append(returns)
 
-        volatility = pf_volatility(weights, cvm, freq=freq)  # Annual standard deviation = volatility
+        volatility = pf_volatility(
+            weights, cvm, freq=freq
+        )  # Annual standard deviation = volatility
         pf_vol.append(volatility)
 
         sh_ratio = (returns - risk_free_rate) / volatility
         pf_sharp_ratio.append(sh_ratio)
 
-        pf_stocks_yearly_downside_vol = pf_negative_volatility(weights=weights,
-                                                               stocks_yearly_downside_vol=stocks_negative_volatility)
+        pf_stocks_yearly_downside_vol = pf_negative_volatility(
+            weights=weights, stocks_yearly_downside_vol=stocks_negative_volatility
+        )
         pf_down_vol.append(pf_stocks_yearly_downside_vol)
 
         sor_ratio = (returns - risk_free_rate) / pf_stocks_yearly_downside_vol
@@ -99,8 +104,13 @@ def mc_random_portfolios(data: pd.DataFrame, risk_free_rate=0.01, num_portfolios
 
     pbar.close()
 
-    df_rv = {'Returns': pf_ret, 'Volatility': pf_vol, 'Down. Volatility': pf_down_vol, 'Sharp Ratio': pf_sharp_ratio,
-             'Sortino Ratio': pf_sortino_ratio}
+    df_rv = {
+        "Returns": pf_ret,
+        "Volatility": pf_vol,
+        "Down. Volatility": pf_down_vol,
+        "Sharp Ratio": pf_sharp_ratio,
+        "Sortino Ratio": pf_sortino_ratio,
+    }
 
     for counter, symbol in enumerate(data.columns, start=0):
         df_rv[symbol] = [w[counter] for w in pf_weights]

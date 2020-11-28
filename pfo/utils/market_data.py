@@ -12,7 +12,7 @@ from enum import Enum
 import datetime
 from tqdm import tqdm
 
-_price_col_names = ['WAPRICE', 'Adj. Close', 'Adj Close', 'CLOSE', 'close', 'Close']
+_price_col_names = ["WAPRICE", "Adj. Close", "Adj Close", "CLOSE", "close", "Close"]
 
 
 class Source(Enum):
@@ -21,7 +21,9 @@ class Source(Enum):
     CSV = 3
 
 
-def _download_csv(tickers: list, path, start_date: datetime, end_date: datetime) -> pd.DataFrame:
+def _download_csv(
+    tickers: list, path, start_date: datetime, end_date: datetime
+) -> pd.DataFrame:
     data = pd.DataFrame()
 
     if isinstance(path, str):
@@ -29,16 +31,18 @@ def _download_csv(tickers: list, path, start_date: datetime, end_date: datetime)
     elif isinstance(path, (Path, WindowsPath)):
         p = path
     else:
-        raise Exception(f'Varibale path should be str, pathlib.Path or pathlib.WindowsPath')
+        raise Exception(
+            f"Varibale path should be str, pathlib.Path or pathlib.WindowsPath"
+        )
 
     if not p.exists():
-        raise Exception(f'File or folder {path} does not exist')
+        raise Exception(f"File or folder {path} does not exist")
 
     files = []
     if p.is_dir():
-        files = p.glob('*.csv')
+        files = p.glob("*.csv")
     else:
-        raise Exception('path should be a folder')
+        raise Exception("path should be a folder")
 
     available_tickers = [f.stem for f in files]
 
@@ -54,6 +58,7 @@ def _download_csv(tickers: list, path, start_date: datetime, end_date: datetime)
             warning_message += "\n"
             warning_message += "-" * 50
             import warnings
+
             warnings.warn(warning_message)
 
     stocks_prices = []
@@ -61,15 +66,23 @@ def _download_csv(tickers: list, path, start_date: datetime, end_date: datetime)
         if ticker not in missing_tickers:
             stock_df = pd.DataFrame()
             try:
-                ticker_path = Path(path / f'{ticker}.csv')
+                ticker_path = Path(path / f"{ticker}.csv")
                 if start_date is None or end_date is None:
-                    stock_df = \
-                        pd.read_csv(ticker_path, index_col=0, parse_dates=['Date'], skipinitialspace=True, sep=',') \
-                            [:]
+                    stock_df = pd.read_csv(
+                        ticker_path,
+                        index_col=0,
+                        parse_dates=["Date"],
+                        skipinitialspace=True,
+                        sep=",",
+                    )[:]
                 else:
-                    stock_df = \
-                        pd.read_csv(ticker_path, index_col=0, parse_dates=['Date'], skipinitialspace=True, sep=',') \
-                            [:][start_date:end_date]
+                    stock_df = pd.read_csv(
+                        ticker_path,
+                        index_col=0,
+                        parse_dates=["Date"],
+                        skipinitialspace=True,
+                        sep=",",
+                    )[:][start_date:end_date]
 
             except:
                 continue
@@ -80,16 +93,18 @@ def _download_csv(tickers: list, path, start_date: datetime, end_date: datetime)
             stocks_prices.append(stock_df)
 
     if len(stocks_prices) > 0:
-        data = pd.concat(stocks_prices, join='inner', axis=1)
+        data = pd.concat(stocks_prices, join="inner", axis=1)
 
     return data
 
 
-def _download_yfinance(tickers: list, start_date: datetime, end_date: datetime) -> pd.DataFrame:
+def _download_yfinance(
+    tickers: list, start_date: datetime, end_date: datetime
+) -> pd.DataFrame:
     data = pd.DataFrame()
 
     if len(tickers) == 0:
-        raise Exception(f'No tickers provided')
+        raise Exception(f"No tickers provided")
 
     try:
         if start_date is None or end_date is None:
@@ -98,9 +113,7 @@ def _download_yfinance(tickers: list, start_date: datetime, end_date: datetime) 
             data = yfinance.download(tickers, start=start_date, end=end_date)
 
     except Exception:
-        raise Exception(
-            "Error during download of stock data with `yfinance`"
-        )
+        raise Exception("Error during download of stock data with `yfinance`")
 
     if not isinstance(data.columns, pd.MultiIndex) > 0:
         # adding multiindex
@@ -110,25 +123,26 @@ def _download_yfinance(tickers: list, start_date: datetime, end_date: datetime) 
     return data
 
 
-def _download_moex(tickers: list, start_date: datetime, end_date: datetime, boards: list) -> pd.DataFrame:
+def _download_moex(
+    tickers: list, start_date: datetime, end_date: datetime, boards: list
+) -> pd.DataFrame:
     data = pd.DataFrame()
-    arguments = {'securities.columns': ('SECID,'
-                                        'REGNUMBER,'
-                                        'LOTSIZE,'
-                                        'SHORTNAME')}
+    arguments = {"securities.columns": ("SECID," "REGNUMBER," "LOTSIZE," "SHORTNAME")}
     for board in boards:
-        brd = board.get('board')
-        shares = board.get('shares')
-        request_url = ('https://iss.moex.com/iss/engines/stock/'
-                       f'markets/{shares}/boards/{brd}/securities.json')
+        brd = board.get("board")
+        shares = board.get("shares")
+        request_url = (
+            "https://iss.moex.com/iss/engines/stock/"
+            f"markets/{shares}/boards/{brd}/securities.json"
+        )
 
         with requests.Session() as session:
             iss = apimoex.ISSClient(session, request_url, arguments)
             iis_data = iss.get()
-            board_df = pd.DataFrame(iis_data['securities'])
-            board_df.set_index('SECID', inplace=True)
+            board_df = pd.DataFrame(iis_data["securities"])
+            board_df.set_index("SECID", inplace=True)
 
-            columns = ['TRADEDATE', 'WAPRICE', 'CLOSE']
+            columns = ["TRADEDATE", "WAPRICE", "CLOSE"]
             stocks_prices = []
             if len(tickers) == 0:
                 tickers = board_df.index.tolist()
@@ -136,18 +150,27 @@ def _download_moex(tickers: list, start_date: datetime, end_date: datetime, boar
             pbar = tqdm(total=len(board_df.index))
             for stock in board_df.index:
                 if stock in tickers:
-                    stock_data = apimoex.get_board_history(session=session, security=stock, start=start_date, \
-                                                           end=end_date, columns=columns, market=shares, board=brd)
+                    stock_data = apimoex.get_board_history(
+                        session=session,
+                        security=stock,
+                        start=start_date,
+                        end=end_date,
+                        columns=columns,
+                        market=shares,
+                        board=brd,
+                    )
                     stock_df = pd.DataFrame(stock_data)
-                    stock_df['TRADEDATE'] = pd.to_datetime(stock_df['TRADEDATE'])
-                    stock_df.set_index('TRADEDATE', inplace=True)
-                    stock_df = pd.concat([stock_df], axis=1, keys=[stock]).swaplevel(0, 1, 1)
+                    stock_df["TRADEDATE"] = pd.to_datetime(stock_df["TRADEDATE"])
+                    stock_df.set_index("TRADEDATE", inplace=True)
+                    stock_df = pd.concat([stock_df], axis=1, keys=[stock]).swaplevel(
+                        0, 1, 1
+                    )
                     stocks_prices.append(stock_df)
 
                 pbar.update(1)
 
             if len(stocks_prices) > 0:
-                data = pd.concat(stocks_prices, join='outer', axis=1)
+                data = pd.concat(stocks_prices, join="outer", axis=1)
 
     return data[start_date:end_date]
 
@@ -171,26 +194,30 @@ def download(source: Source, **kwargs) -> pd.DataFrame:
     :Output:
      : rates: pandas.DataFrame, index = Date
     """
-    tickers = kwargs.get('tickers', [])
-    start_date = kwargs.get('start_date', None)
-    end_date = kwargs.get('end_date', None)
-    path = kwargs.get('path', '')
-    boards = kwargs.get('boards', [{'board': 'TQBR', 'shares': 'shares'}])
+    tickers = kwargs.get("tickers", [])
+    start_date = kwargs.get("start_date", None)
+    end_date = kwargs.get("end_date", None)
+    path = kwargs.get("path", "")
+    boards = kwargs.get("boards", [{"board": "TQBR", "shares": "shares"}])
 
     rates = pd.DataFrame()
     if source == Source.CSV:
-        rates = _download_csv(tickers=tickers, start_date=start_date, end_date=end_date, path=path)
+        rates = _download_csv(
+            tickers=tickers, start_date=start_date, end_date=end_date, path=path
+        )
 
     if source == Source.YFINANCE:
-        rates = _download_yfinance(tickers=tickers, start_date=start_date, end_date=end_date)
+        rates = _download_yfinance(
+            tickers=tickers, start_date=start_date, end_date=end_date
+        )
 
     if source == Source.MOEX:
-        rates = _download_moex(tickers=tickers, start_date=start_date, end_date=end_date, boards=boards)
+        rates = _download_moex(
+            tickers=tickers, start_date=start_date, end_date=end_date, boards=boards
+        )
 
     return rates
 
 
 def _cache(data: pd.DataFrame, path):
     pass
-
-
