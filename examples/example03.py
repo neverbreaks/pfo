@@ -1,12 +1,9 @@
 import datetime
 import matplotlib.pyplot as plt
-from pfo.stocks.ratios import ratios
-from pfo.portfolio.portfolio import Portfolio
-import pandas as pd
+from pfo.pf.portfolio import Portfolio
 import numpy as np
-
-
-from pfo.market_data import download, Source, clean_data
+from pfo.utils.market_data import download, Source
+from pfo.utils.data_utils import clean_data
 
 start_date = datetime.datetime(2019, 1, 1)
 end_date = '2020-11-20'
@@ -30,10 +27,6 @@ msr1 = pf1.max_sharpe_ratio()
 print(np.round(msr['x'],decimals = 4))
 print(np.round(msr1['x'],decimals = 4))
 
-#print(pf.sharp)
-#print(pf.sortino)
-
-#pf.print_pf_result()
 pf1.print_pf_result()
 pf1.efficient_portfolios()
 

@@ -3,14 +3,14 @@ import numpy as np
 import pandas as pd
 import scipy.optimize as sco
 
-from pfo.market_data import clean_data
-from pfo.portfolio.mc import mc_random_portfolios
-from pfo.portfolio.valuations import pf_volatility, pf_mean_returns, pf_negative_volatility
+from pfo.utils.data_utils import clean_data
+from pfo.pf.mc import mc_random_portfolios
+from pfo.pf.valuations import pf_volatility, pf_mean_returns, pf_negative_volatility
 from pfo.stocks.returns import cov_matrix, mean_returns, negative_volatility
 
 
 class Portfolio(object):
-    """Object that contains information about a investment portfolio.
+    """Object that contains information about a investment pf.
     """
 
     def __init__(self, data: pd.DataFrame, weights=None, risk_free_rate=0.0425, freq=252):

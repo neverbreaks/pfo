@@ -3,7 +3,7 @@ from pathlib import Path
 import pandas as pd
 import pytest
 
-from pfo.market_data import download, Source
+from pfo.utils.market_data import download, Source
 
 path = (Path.cwd() / "data").resolve()
 start_date = datetime.datetime(2017, 1, 1)

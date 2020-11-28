@@ -2,7 +2,7 @@ import numpy as np
 import pandas as pd
 from tqdm import tqdm
 
-from pfo.portfolio.valuations import pf_mean_returns, pf_volatility, pf_negative_volatility
+from pfo.pf.valuations import pf_mean_returns, pf_volatility, pf_negative_volatility
 from pfo.stocks.returns import cov_matrix, mean_returns, negative_volatility
 
 
@@ -56,9 +56,9 @@ def random_weights(num_assets):
 def mc_random_portfolios(data: pd.DataFrame, risk_free_rate=0.01, num_portfolios=10000, freq=252):
     pbar = tqdm(total=num_portfolios)
 
-    pf_ret = []  # Define an empty array for portfolio returns
-    pf_vol = []  # Define an empty array for portfolio volatility
-    pf_down_vol = []  # Define an empty array for portfolio downside volatility
+    pf_ret = []  # Define an empty array for pf returns
+    pf_vol = []  # Define an empty array for pf volatility
+    pf_down_vol = []  # Define an empty array for pf downside volatility
     pf_weights = []  # Define an empty array for asset weights
     pf_sharp_ratio = []  # Define an empty array for Sharp ratio
     pf_sortino_ratio = []  # Define an empty array for Sortino ratio

@@ -3,7 +3,7 @@ import matplotlib.pyplot as plt
 import pandas as pd
 from pathlib import Path
 import numpy as np
-from pfo.portfolio.portfolio import Portfolio
+from pfo.pf.portfolio import Portfolio
 
 
 pd.set_option('display.max_rows', None)

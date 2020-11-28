@@ -1,8 +1,9 @@
 import datetime
 from pathlib import Path
 
-from pfo.market_data import download, Source, clean_data
-from pfo.portfolio import portfolio
+from pfo.utils.market_data import download, Source
+from pfo.utils.data_utils import clean_data
+from pfo.pf.portfolio import Portfolio
 
 path = (Path.cwd() / "data").resolve()
 start_date = datetime.datetime(2018, 11, 19)
@@ -60,7 +61,8 @@ def test_portfolio_csv_pass_0():
     d = d_pass_csv[0]
     data = download(**d)
     data = clean_data(data)
-    pf = portfolio(data = data, num_portfolios=10000)
+    pf = Portfolio(data = data)
+    pf.mc_simulation()
     pf.plot_mc_simulation()
     pf.print_mc_results()
 
@@ -71,7 +73,8 @@ def test_portfolio_moex_pass_0():
     d = d_pass_moex[0]
     data = download(**d)
     data = clean_data(data)
-    pf = portfolio(data = data)
+    pf = Portfolio(data = data)
+    pf.mc_simulation()
     pf.plot_mc_simulation()
     pf.print_mc_results()
 
@@ -80,7 +83,8 @@ def test_portfolio_yfinance_pass_0():
     d = d_pass_yfinance[2]
     data = download(**d)
     data = clean_data(data)
-    pf = portfolio(data=data, risk_free_rate=0.001, freq=252, num_portfolios=10000)
+    pf = Portfolio(data=data, risk_free_rate=0.001, freq=252)
+    pf.mc_simulation(num_portfolios=100)
     pf.plot_mc_simulation()
     pf.print_mc_results()
 
@@ -88,6 +92,7 @@ def test_portfolio_yfinance_pass_1():
     d = d_pass_yfinance[0]
     data = download(**d)
     data = clean_data(data)
-    pf = portfolio(data=data, risk_free_rate=0.001, freq=252, num_portfolios=10000)
+    pf = Portfolio(data=data, risk_free_rate=0.001, freq=252)
+    pf.mc_simulation()
     pf.plot_mc_simulation()
     pf.print_mc_results()

@@ -1,6 +1,6 @@
 import pandas as pd
 from matplotlib import pylab as plt
-from pfo.market_data import clean_data
+from pfo.utils.data_utils import clean_data
 from pfo.stocks.returns import mean_returns, volatility, negative_volatility, daily_log_returns
 import numpy as np
 
@@ -51,7 +51,7 @@ class stock(object):
         return self._volatility
 
     @property
-    def downside_volaitulity(self):
+    def negative_volaitulity(self):
         return self._downside_volitility
 
     @property

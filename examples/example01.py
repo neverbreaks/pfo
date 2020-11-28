@@ -13,7 +13,7 @@ data = pd.read_csv(path, index_col = 0,  parse_dates=['TRADEDATE'])
 
 data = data[start_date:end_date]
 isnull = data.isnull().sum()
-for ticker in data.columns:     #если слишком много значений null исключаем акцию из анализа
+for ticker in data.columns:
     try:
         if isnull[ticker] > 50:
             data.drop(ticker, axis=1, inplace=True)

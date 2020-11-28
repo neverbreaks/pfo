@@ -3,7 +3,7 @@ import pandas as pd
 from matplotlib import pylab as plt
 from scipy.cluster.vq import vq
 from sklearn.cluster import KMeans
-from pfo.market_data import clean_data
+from pfo.utils.data_utils import clean_data
 
 from pfo.stocks.returns import mean_returns, daily_log_returns, volatility
 
@@ -22,7 +22,7 @@ def cluster_stocks(data: pd.DataFrame, n_clusters=5, verbose=False):
         :Input:
              : data: ``pandas.DataFrame`` stock prices
              :n_clusters: ``int`` (default: 5), should be > 2 and less than number of stocks in
-             portfolio
+             pf
              :verbose: ``boolean`` (default= ``False``), whether to print out clusters
         :Output:
              :clusters: ``list`` of (Stocks) tickers.
@@ -33,10 +33,10 @@ def cluster_stocks(data: pd.DataFrame, n_clusters=5, verbose=False):
     elif n_clusters < 2:
         raise ValueError(f'Total number of clusters({len(data.columns)}) must be > 2.')
     elif len(data.columns) < 3:
-        raise ValueError(f'Total number of stocks in portfolio({len(data.columns)}) must be > 2.')
+        raise ValueError(f'Total number of stocks in pf({len(data.columns)}) must be > 2.')
     elif n_clusters > len(data.columns):
         raise ValueError(f'Total number of clusters({n_clusters}) '
-                         f'must be <= number of stocks({len(data.columns)}) in portfolio')
+                         f'must be <= number of stocks({len(data.columns)}) in pf')
 
     if isinstance(data.columns, pd.MultiIndex):
         data = clean_data(data)

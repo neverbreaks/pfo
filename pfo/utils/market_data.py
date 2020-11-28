@@ -11,6 +11,7 @@ from pathlib import Path, WindowsPath
 from enum import Enum
 import datetime
 from tqdm import tqdm
+
 _price_col_names = ['WAPRICE', 'Adj. Close', 'Adj Close', 'CLOSE', 'close', 'Close']
 
 
@@ -20,7 +21,7 @@ class Source(Enum):
     CSV = 3
 
 
-def _download_csv(tickers: list, path, start_date:datetime, end_date: datetime) -> pd.DataFrame:
+def _download_csv(tickers: list, path, start_date: datetime, end_date: datetime) -> pd.DataFrame:
     data = pd.DataFrame()
 
     if isinstance(path, str):
@@ -63,11 +64,11 @@ def _download_csv(tickers: list, path, start_date:datetime, end_date: datetime) 
                 ticker_path = Path(path / f'{ticker}.csv')
                 if start_date is None or end_date is None:
                     stock_df = \
-                        pd.read_csv(ticker_path, index_col = 0,  parse_dates=['Date'], skipinitialspace=True,  sep=',') \
+                        pd.read_csv(ticker_path, index_col=0, parse_dates=['Date'], skipinitialspace=True, sep=',') \
                             [:]
                 else:
                     stock_df = \
-                        pd.read_csv(ticker_path, index_col = 0,  parse_dates=['Date'], skipinitialspace=True, sep=',') \
+                        pd.read_csv(ticker_path, index_col=0, parse_dates=['Date'], skipinitialspace=True, sep=',') \
                             [:][start_date:end_date]
 
             except:
@@ -84,7 +85,7 @@ def _download_csv(tickers: list, path, start_date:datetime, end_date: datetime) 
     return data
 
 
-def _download_yfinance(tickers : list, start_date: datetime, end_date: datetime) -> pd.DataFrame:
+def _download_yfinance(tickers: list, start_date: datetime, end_date: datetime) -> pd.DataFrame:
     data = pd.DataFrame()
 
     if len(tickers) == 0:
@@ -109,7 +110,7 @@ def _download_yfinance(tickers : list, start_date: datetime, end_date: datetime)
     return data
 
 
-def _download_moex(tickers : list, start_date: datetime, end_date: datetime, boards: list) -> pd.DataFrame:
+def _download_moex(tickers: list, start_date: datetime, end_date: datetime, boards: list) -> pd.DataFrame:
     data = pd.DataFrame()
     arguments = {'securities.columns': ('SECID,'
                                         'REGNUMBER,'
@@ -130,7 +131,7 @@ def _download_moex(tickers : list, start_date: datetime, end_date: datetime, boa
             columns = ['TRADEDATE', 'WAPRICE', 'CLOSE']
             stocks_prices = []
             if len(tickers) == 0:
-               tickers = board_df.index.tolist()
+                tickers = board_df.index.tolist()
 
             pbar = tqdm(total=len(board_df.index))
             for stock in board_df.index:
@@ -189,49 +190,7 @@ def download(source: Source, **kwargs) -> pd.DataFrame:
     return rates
 
 
-def cache(source: Source, path, **kwargs):
+def _cache(data: pd.DataFrame, path):
     pass
 
 
-def price_column(columns : list):
-    """This function takes list of columns and returns
-       preferable name for analysis i.e. Adj. Close is preferable to Close.
-       Preferable colums will be extracted to config file in the future.
-        :Output:
-         : column name: str,
-        """
-    unique_names = list(set(columns))
-
-    for name in unique_names:
-        if name in _price_col_names:
-            return name
-
-    return None
-
-
-def clean_data(data: pd.DataFrame) -> pd.DataFrame:
-    """This function takes pandas dataframe with multindex column
-       and transforms it to a simple dataframe with prices. The new
-       i.e. , index = Date, columns names are stocks, values - preferable
-       prices
-        :Output:
-         : data: pandas datafram, index = Date,
-        """
-
-    priority_column = price_column(data.columns.get_level_values(0))
-
-    if not isinstance(data, pd.DataFrame):
-        raise ValueError('data should be a pandas.DataFrame')
-    elif not isinstance(data.columns, pd.MultiIndex):
-        raise ValueError('Multiindex pandas.DataFrame is expected like Close/AAPL')
-    elif priority_column == None:
-        raise ValueError('Can not find a column with prices')
-
-    columns = []
-    for index, item in enumerate(data.columns.get_level_values(0), start=0):  # Python indexes start at zero
-        if item == priority_column:
-            columns.append(index)
-
-    data = data.iloc[:, columns]
-    data.columns = data.columns.droplevel(0)
-    return data
