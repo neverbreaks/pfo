@@ -29,7 +29,7 @@ tickers_pass_moex = [
     ["SBER", "GAZP", "MTSS", "UNKN"],
     ["SBER"],
     [],
-    ['AAPL-RM', 'FXDE', 'SBSP', 'SBER', 'AFLT'],
+    ["AAPL-RM", "FXDE", "SBSP", "SBER", "AFLT"],
 ]
 
 tickers_warn_csv = [
@@ -87,11 +87,16 @@ d_pass_moex = [
     },
     {"source": Source.MOEX, "tickers": tickers_pass_moex[2]},
     {"source": Source.MOEX, "tickers": tickers_pass_moex[3]},
-    {"source": Source.MOEX, "tickers": tickers_pass_moex[4], "boards": [{'board': 'TQBR', 'shares': 'shares'},
-                                                                        {'board': 'TQTF', 'shares': 'shares'},
-                                                                        {'board': 'FQBR', 'shares': 'foreignshares'}]},
+    {
+        "source": Source.MOEX,
+        "tickers": tickers_pass_moex[4],
+        "boards": [
+            {"board": "TQBR", "shares": "shares"},
+            {"board": "TQTF", "shares": "shares"},
+            {"board": "FQBR", "shares": "foreignshares"},
+        ],
+    },
 ]
-
 
 
 ###############################################################################
@@ -189,4 +194,3 @@ def test_download_moex_pass_4():
     tickers = data.columns.tolist()
     print(tickers)
     assert sorted(tickers) == sorted(tickers_pass_moex[4])
-
