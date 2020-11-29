@@ -169,9 +169,16 @@ def _download_moex(
                     stocks_prices.append(stock_df)
 
                 pbar.update(1)
+            pbar.clear()
 
             if len(stocks_prices) > 0:
-                data = pd.concat(stocks_prices, join="outer", axis=1)
+                data1 = pd.concat(stocks_prices, join="outer", axis=1)
+                if len(data.columns) == 0:
+                    data = data1.copy(deep=True)
+                else:
+                    data = pd.concat([data, data1], join="outer", axis=1)
+
+    pbar.close()
 
     return data[start_date:end_date]
 
