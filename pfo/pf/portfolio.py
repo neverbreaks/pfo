@@ -6,7 +6,7 @@ import scipy.optimize as sco
 from pfo.utils.data_utils import clean_data
 from pfo.pf.mc import mc_random_portfolios
 from pfo.pf.valuations import pf_volatility, pf_mean_returns, pf_negative_volatility
-from pfo.stocks.returns import cov_matrix, mean_returns, negative_volatility
+from pfo.stocks.returns import cov_matrix, mean_returns, negative_volatility, volatility
 
 
 class Portfolio(object):
@@ -144,8 +144,27 @@ class Portfolio(object):
             s=500,
         )
 
-    def plot_ef(self):
-        pass
+    def plot_stocks(self):
+        """Plots the Expected annual Returns over annual Volatility of
+        the stocks of the portfolio.
+
+        """
+        # annual mean returns of all stocks
+        stock_returns = mean_returns(data=self._data, freq=self._freq)
+        stock_volatility = volatility(data=self._data, freq=self._freq)
+        # adding stocks of the portfolio to the plot
+        # plot stocks individually:
+        plt.scatter(stock_volatility, stock_returns, marker="o", s=100, label="Stocks")
+        # adding text to stocks in plot:
+        for i, txt in enumerate(stock_returns.index):
+            plt.annotate(
+                txt,
+                (stock_volatility[i], stock_returns[i]),
+                xytext=(10, 0),
+                textcoords="offset points",
+                label=i,
+            )
+            plt.legend()
 
     ###############################################################################
     #                                     REPORTING                               #

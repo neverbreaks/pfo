@@ -126,6 +126,7 @@ def _download_yfinance(
 def _download_moex(
     tickers: list, start_date: datetime, end_date: datetime, boards: list
 ) -> pd.DataFrame:
+
     data = pd.DataFrame()
     arguments = {"securities.columns": ("SECID," "REGNUMBER," "LOTSIZE," "SHORTNAME")}
     for board in boards:
@@ -186,7 +187,7 @@ def download(source: Source, **kwargs) -> pd.DataFrame:
          requested through `yfinance` (default: ``None``).
      :path (optional): folder where .csv files with prices are stored. file should be
       named as ticker.csv, i.e. AAPL.csv
-     :boards : union, MOEX boards and type of share like boards = [
+     :boards : list of dict, MOEX boards and type of share like boards = [
                                                              {'board': 'TQBR', 'shares': 'shares'},
                                                              {'board': 'TQTF', 'shares': 'shares'},
                                                              {'board': 'FQBR', 'shares': 'foreignshares'},

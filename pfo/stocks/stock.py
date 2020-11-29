@@ -95,17 +95,21 @@ class stock(object):
         plt.figure(figsize=(16, 10))
         # ax = fig.add_subplot(111, projection='polar')
 
-        plt.plot(self._data[self._ticker], "black", linewidth=0.5)
+        plt.plot(self._data[self._ticker], "black", linewidth=2.0)
         plt.title(f"{self._ticker}")
         plt.ylabel("Price")
         plt.xticks(rotation=30)
         plt.grid(True)
 
-        self._data["SMA5"] = self._data[self._ticker].rolling(20).mean()
-        self._data["SMA20"] = self._data[self._ticker].rolling(60).mean()
+        # Generate moving averages
+
+        self._data["SMA5"] = self._data[self._ticker].rolling(5).mean()
+        self._data["SMA20"] = self._data[self._ticker].rolling(20).mean()
 
         plt.plot(self._data["SMA5"], linewidth=1.0, color="red")
         plt.plot(self._data["SMA20"], linewidth=1.0, color="c")
+
+        # Select buying and selling signals: where moving averages cross
 
         # Identifying the buy/sell zone
         self._data["Buy"] = np.where((self._data["SMA5"] > self._data["SMA20"]), 1, 0)
@@ -118,7 +122,30 @@ class stock(object):
         self._data["Sell_ind"] = np.where(
             (self._data["Sell"] > self._data["Sell"].shift(1)), 1, 0
         )
-        # print(df.dtypes)
-        # print(df.head(20))
+        ## plotting the buy and sellsignals on graph
+        # plt.plot(self._data.loc[self._data['Buy_ind'] == 1])
+        r = self._data.loc[self._data["Buy_ind"] == 1].index
+
+        plt.scatter(
+            self._data.loc[self._data["Buy_ind"] == 1].index,
+            self._data.loc[self._data["Buy_ind"] == 1, self._ticker].values,
+            label="skitscat",
+            color="green",
+            s=100,
+            marker="^",
+        )
+        plt.scatter(
+            self._data.loc[self._data["Sell_ind"] == 1].index,
+            self._data.loc[self._data["Sell_ind"] == 1, self._ticker].values,
+            label="skitscat",
+            color="red",
+            s=100,
+            marker="v",
+        )
+
+        ## Adding labels
+        plt.xlabel("Date")
+        plt.ylabel("Close Price")
+        plt.title(f"{self._ticker} price with buy and sell signal")
 
         ## plotting the buy and sellsignals on graph

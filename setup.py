@@ -3,11 +3,18 @@ from setuptools import setup, find_packages
 with open("README.md", "r") as readme_file:
     readme = readme_file.read()
 
-requirements = ["numpy==1.19.3", "yfinance>=0.1.55", "pandas==1.1.4", "apimoex>=1.2.0", "scikit-learn>=0.23.2", "tqdm>=4.53.0"]
+requirements = [
+    "numpy==1.19.3",
+    "yfinance>=0.1.55",
+    "pandas==1.1.4",
+    "apimoex>=1.2.0",
+    "scikit-learn>=0.23.2",
+    "tqdm>=4.53.0",
+]
 
 setup(
     name="pfo",
-    version="0.0.1",
+    version="0.0.2",
     author="shurajan",
     author_email="neverbreaks2020@gmail.com",
     description="A package to analyse personal investments",
