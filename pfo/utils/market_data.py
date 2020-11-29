@@ -130,6 +130,7 @@ def _download_moex(
     data = pd.DataFrame()
     arguments = {"securities.columns": ("SECID," "REGNUMBER," "LOTSIZE," "SHORTNAME")}
     for board in boards:
+        board_tickers = []
         brd = board.get("board")
         shares = board.get("shares")
         request_url = (
@@ -146,11 +147,13 @@ def _download_moex(
             columns = ["TRADEDATE", "WAPRICE", "CLOSE"]
             stocks_prices = []
             if len(tickers) == 0:
-                tickers = board_df.index.tolist()
+                board_tickers = board_df.index.tolist()
+            else:
+                board_tickers = tickers
 
             pbar = tqdm(total=len(board_df.index))
             for stock in board_df.index:
-                if stock in tickers:
+                if stock in board_tickers:
                     stock_data = apimoex.get_board_history(
                         session=session,
                         security=stock,

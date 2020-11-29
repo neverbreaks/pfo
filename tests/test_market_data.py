@@ -4,6 +4,7 @@ import pandas as pd
 import pytest
 
 from pfo.utils.market_data import download, Source
+from pfo.utils.data_utils import clean_data
 
 path = (Path.cwd() / "data").resolve()
 start_date = datetime.datetime(2017, 1, 1)
@@ -28,6 +29,7 @@ tickers_pass_moex = [
     ["SBER", "GAZP", "MTSS", "UNKN"],
     ["SBER"],
     [],
+    ['AAPL-RM', 'FXDE', 'SBSP', 'SBER', 'AFLT'],
 ]
 
 tickers_warn_csv = [
@@ -85,7 +87,11 @@ d_pass_moex = [
     },
     {"source": Source.MOEX, "tickers": tickers_pass_moex[2]},
     {"source": Source.MOEX, "tickers": tickers_pass_moex[3]},
+    {"source": Source.MOEX, "tickers": tickers_pass_moex[4], "boards": [{'board': 'TQBR', 'shares': 'shares'},
+                                                                        {'board': 'TQTF', 'shares': 'shares'},
+                                                                        {'board': 'FQBR', 'shares': 'foreignshares'}]},
 ]
+
 
 
 ###############################################################################
@@ -172,3 +178,15 @@ def test_download_moex_pass_3():
     data = download(**d)
     print(data.head())
     isinstance(data, pd.DataFrame)
+
+
+def test_download_moex_pass_4():
+    d = d_pass_moex[4]
+    data = download(**d)
+    print(data.head())
+    isinstance(data, pd.DataFrame)
+    data = clean_data(data)
+    tickers = data.columns.tolist()
+    print(tickers)
+    assert sorted(tickers) == sorted(tickers_pass_moex[4])
+
