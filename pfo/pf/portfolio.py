@@ -362,18 +362,34 @@ class Portfolio(object):
     def _neg_sortino_ratio(self, weights):
         return -self._sortino_ratio(weights)
 
-    def discrete_allocation(self, weights = None):
+    def discrete_allocation(self, weights=None, verbose=True):
         if weights is None:
-           weights = self._weights
+            weights = self._weights
 
         df_last = self._data.tail(1)
-        total_cost =  (df_last / weights).sum().max()
-        print(f'Portfolio cost - {round(total_cost)}')
+        total_cost = (df_last / weights).sum().max()
 
         out = {}
         for counter, ticker in enumerate(df_last, start=0):
             w = np.round(weights[counter], 4)
             if w > 0:
-                out[ticker] = round(total_cost * w/df_last[ticker].sum())
+                price = df_last[ticker].sum()
+                num = round(total_cost * w / price)
+                out[ticker] = [price, num, w, num * price]
 
-        print(pd.Series(out, index=out.keys()))
+        df_out = pd.DataFrame.from_dict(
+            out, orient="index", columns=["Price", "Num", "Weight", "Investment"]
+        )
+        if verbose:
+            print(f"Portfolio cost - {round(total_cost)}".format(".2f"))
+            print(
+                df_out.to_string(
+                    formatters={
+                        "Price": "{:,.2f}".format,
+                        "Weight": "{:,.2f}".format,
+                        "Investment": "{:,.2f}".format,
+                    }
+                )
+            )
+
+        return df_out
