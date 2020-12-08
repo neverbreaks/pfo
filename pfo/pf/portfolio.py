@@ -372,10 +372,15 @@ class Portfolio(object):
         out = {}
         for counter, ticker in enumerate(df_last, start=0):
             w = np.round(weights[counter], 4)
-            if w > 0:
-                price = df_last[ticker].sum()
-                num = round(total_cost * w / price)
-                out[ticker] = [price, num, w, num * price]
+            price = df_last[ticker].sum()
+            if price >0:
+               num = round(total_cost * w / price)
+            else:
+               import warnings
+               warnings.warn(f'{ticker} has 0 price')
+               num = 0
+
+            out[ticker] = [price, num, w, num * price]
 
         df_out = pd.DataFrame.from_dict(
             out, orient="index", columns=["Price", "Num", "Weight", "Investment"]
