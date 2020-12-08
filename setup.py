@@ -14,7 +14,7 @@ requirements = [
 
 setup(
     name="pfo",
-    version="0.0.6",
+    version="0.0.7",
     author="shurajan",
     author_email="neverbreaks2020@gmail.com",
     description="A package to analyse personal investments",

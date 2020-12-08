@@ -367,11 +367,19 @@ class Portfolio(object):
             weights = self._weights
 
         df_last = self._data.tail(1)
-        total_cost = (df_last / weights).sum().max()
+        total_cost = []
+        max_price = 0
+        for counter, ticker in enumerate(df_last, start=0):
+            w = weights[counter]
+            price = df_last[ticker].sum()
+            if w >= 0:
+               if max_price < price:
+                  total_cost = price/w
+                  max_price = price
 
         out = {}
         for counter, ticker in enumerate(df_last, start=0):
-            w = np.round(weights[counter], 4)
+            w = weights[counter]
             price = df_last[ticker].sum()
             if price >0:
                num = round(total_cost * w / price)
