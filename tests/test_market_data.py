@@ -5,10 +5,12 @@ import pytest
 
 from pfo.utils.market_data import download, Source
 from pfo.utils.data_utils import clean_data
+from pfo.utils.moex import get_board_tickers
 
 path = (Path.cwd() / "data").resolve()
 start_date = datetime.datetime(2017, 1, 1)
 end_date = "2019-12-31"
+
 
 ###############################################################################
 #                                   TICKERS                                   #
@@ -194,3 +196,22 @@ def test_download_moex_pass_4():
     tickers = data.columns.tolist()
     print(tickers)
     assert sorted(tickers) == sorted(tickers_pass_moex[4])
+
+
+def test_get_board_tickers_pass_0():
+    tickers = get_board_tickers()
+    print(tickers)
+
+
+def test_get_board_tickers_pass_0():
+    tickers = get_board_tickers()
+    assert "SBER" in tickers
+    assert "AAPL-RM" not in tickers
+    print(tickers)
+
+
+def test_get_board_tickers_pass_1():
+    tickers = get_board_tickers(board={"board": "FQBR", "shares": "foreignshares"})
+    assert "SBER" not in tickers
+    assert "AAPL-RM" in tickers
+    print(tickers)

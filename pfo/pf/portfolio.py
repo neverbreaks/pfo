@@ -358,3 +358,16 @@ class Portfolio(object):
 
     def _neg_sortino_ratio(self, weights):
         return -self._sortino_ratio(weights)
+
+    def _neg_sortino_ratio(self, weights):
+        return -self._sortino_ratio(weights)
+
+    def discrete_allocation(self, weights = None):
+        if weights is None:
+           weights = self._weights
+
+        df_last = self._data.tail(1)
+
+        max_price = df_last.max(axis = 0).max()
+
+        print(max_price)
