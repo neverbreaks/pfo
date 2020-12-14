@@ -2,7 +2,7 @@ import datetime
 import matplotlib.pyplot as plt
 import pandas as pd
 from pfo.stocks.cluster import cluster_stocks
-from pfo.stocks.stock import stock
+from pfo.stocks.stock import Stock
 from pfo.utils.market_data import download, Source
 from pfo.utils.data_utils import clean_data
 
@@ -24,7 +24,7 @@ for ticker in data.columns:
 
 pf_stocks = []
 for ticker in data.columns:
-    stk = stock(ticker=ticker, data=data)
+    stk = Stock(ticker=ticker, data=data)
     if stk.sharp >= 1.0 or stk.sortino >= 1.0:
         stk.plot_prices()
         pf_stocks.append(ticker)

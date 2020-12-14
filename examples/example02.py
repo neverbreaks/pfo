@@ -5,7 +5,7 @@ import numpy as np
 from pfo.pf.portfolio import Portfolio
 from pfo.utils.market_data import download, Source
 from pfo.utils.data_utils import clean_data
-from pfo.stocks.stock import stock
+from pfo.stocks.stock import Stock
 
 
 pd.set_option("display.max_rows", None)
@@ -28,7 +28,7 @@ data = clean_data(data)
 
 pf_stocks = []
 for ticker in data.columns:
-    stk = stock(ticker=ticker, data=data)
+    stk = Stock(ticker=ticker, data=data)
     stk.plot_prices()
     stk.plot_daily_returns()
     pf_stocks.append(ticker)

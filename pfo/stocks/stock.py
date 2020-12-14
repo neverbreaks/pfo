@@ -10,7 +10,7 @@ from pfo.stocks.returns import (
 import numpy as np
 
 
-class stock(object):
+class Stock(object):
     """Object that contains information about a stock.
     The class allows to show all ratios and plots required
     for analysis

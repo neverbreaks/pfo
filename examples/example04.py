@@ -2,7 +2,7 @@ import datetime
 import matplotlib.pyplot as plt
 import pandas as pd
 from pfo.stocks.cluster import cluster_stocks
-from pfo.stocks.stock import stock
+from pfo.stocks.stock import Stock
 from pathlib import Path, WindowsPath
 
 from pfo.utils.market_data import download, Source
